@@ -1,0 +1,27 @@
+version: "3"
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB= ${DATABASE_NAME}
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+  api:
+    image: junepoon/fastapi
+    ports:
+      - 80:8000
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_HOSTNAME=${DATABASE_HOSTNAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+
+volumes:
+  postgres-db:

@@ -1,5 +1,7 @@
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+
+from app import utils
 from . import schemas, database, models
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -54,4 +56,6 @@ def get_current_user(
 
     user = db.query(models.User).filter(models.User.id == token.id).first()
 
+    if not user:
+        raise credentials_exception
     return user

@@ -1,5 +1,7 @@
 from fastapi import Depends, status, HTTPException, APIRouter
 
+from app import oauth2
+
 from .. import models, schemas, utils
 from ..database import get_db
 from sqlalchemy.orm import Session
@@ -24,7 +26,11 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{id}", response_model=schemas.UserOut)
-def get_user(id: int, db: Session = Depends(get_db)):
+def get_user(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:
         raise HTTPException(
