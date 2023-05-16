@@ -19,12 +19,10 @@ def login(
         .first()
     )
 
-    logout = (
-        db.query(models.Login_Logout)
-        .filter(models.Login_Logout.user_id == user.id)
-        .order_by(models.Login_Logout.logout.desc())
-        .first()
-    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     if not utils.verify(user_credentials.password, user.password):
         raise HTTPException(
