@@ -3,8 +3,8 @@ from settrade_v2 import Investor
 
 def login():
     investor = Investor(
-        app_id="x878HsmA5yuk5XXR",
-        app_secret="Yp5VyFlBxTgmljVkAmxOUpJDfmq9iESD+RE469PjMU8=",
+        app_id="NT8ff5aBQMXwpzTe",
+        app_secret="SVJ8Mz4ZnZJqvrMEHJH8t41nZp7/UlSqqwcksc04eq8=",
         broker_id="SANDBOX",
         app_code="SANDBOX",
         is_auto_queue=False,
@@ -14,6 +14,8 @@ def login():
 
 def get_quote_symbol(symbol: str):
     investor = login()
+    if not investor:
+        return "Error"
     mkt_data = investor.MarketData()
     res = mkt_data.get_quote_symbol(symbol)
     return res

@@ -14,15 +14,6 @@ from .routers import (
     turnover,
     dividend,
 )
-from settrade_v2 import Investor
-
-investor = Investor(
-    app_id="x878HsmA5yuk5XXR",
-    app_secret="Yp5VyFlBxTgmljVkAmxOUpJDfmq9iESD+RE469PjMU8=",
-    broker_id="SANDBOX",
-    app_code="SANDBOX",
-    is_auto_queue=False,
-)
 
 models.Base.metadata.create_all(bind=engine)
 
