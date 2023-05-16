@@ -34,16 +34,15 @@ def get_news(
 ):
     response = api.news_api(country="th", category="business")
 
-    for i in range(5):
+    for i in range(10):
         news = response["results"][i]
-        if news["image_url"]:
-            new_news = models.News(
-                topic=news["title"],
-                content=news["description"],
-                file=news["image_url"],
-                news_time=news["pubDate"],
-            )
-            db.add(new_news)
-            db.commit()
-            db.refresh(new_news)
+        new_news = models.News(
+            topic=news["title"],
+            content=news["description"],
+            file=news["image_url"],
+            news_time=news["pubDate"],
+        )
+        db.add(new_news)
+        db.commit()
+        db.refresh(new_news)
     return {"message": "News created"}
