@@ -50,6 +50,11 @@ def get_all_bank_transactions(
         .filter(current_user.id == models.Accounts.user_id)
         .first()
     )
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User does not have account"
+        )
+
     bank_transactions = (
         db.query(models.Bank_transactions)
         .filter(current_user.id == account.user_id)

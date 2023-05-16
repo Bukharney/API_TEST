@@ -2,7 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from . import models
 from .database import engine
-from .routers import post, user, auth, vote, account, stock, broker, bank_tsc
+from .routers import (
+    post,
+    user,
+    auth,
+    vote,
+    account,
+    stock,
+    broker,
+    bank_tsc,
+    order,
+    news,
+)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -27,6 +38,8 @@ app.include_router(account.router)
 app.include_router(stock.router)
 app.include_router(broker.router)
 app.include_router(bank_tsc.router)
+app.include_router(order.router)
+app.include_router(news.router)
 
 
 @app.get("/")

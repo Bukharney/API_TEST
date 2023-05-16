@@ -100,7 +100,7 @@ class StockCreate(BaseModel):
     registered_capital: int
     established_date: datetime
     market_entry_date: datetime
-    ipo_price: int
+    ipo_price: float
     free_float: int
     major_shareholders: int
 
@@ -110,6 +110,7 @@ class StockCreate(BaseModel):
 
 class StockOut(BaseModel):
     symbol: str
+    company_name: str
 
     class Config:
         orm_mode = True
@@ -146,3 +147,30 @@ class BankTransactionOut(BankTransactionCreate):
 
     class Config:
         orm_mode = True
+
+
+class OrderCreate(BaseModel):
+    account_id: int
+    symbol: str
+    order_type: str
+    order_volume: int
+    order_price: int
+    order_side: str
+    cancelled: int
+    validity: str
+
+    class Config:
+        orm_mode = True
+
+
+class OrderOut(OrderCreate):
+    id: int
+    order_time: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class StockSearch(BaseModel):
+    result: list[StockOut]
+    count: int

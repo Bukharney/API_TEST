@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, BigInteger
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -48,15 +48,15 @@ class Stock(Base):
     symbol = Column(String, primary_key=True, nullable=False)
     company_name = Column(String, nullable=False)
     stock_industry = Column(String, nullable=False)
-    market_value = Column(Integer, nullable=False)
-    volume = Column(Integer, nullable=False)
+    market_value = Column(BigInteger, nullable=False)
+    volume = Column(BigInteger, nullable=False)
     address = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
     website = Column(String, nullable=False)
-    registered_capital = Column(Integer, nullable=False)
+    registered_capital = Column(BigInteger, nullable=False)
     established_date = Column(TIMESTAMP(timezone=True), nullable=False)
     market_entry_date = Column(TIMESTAMP(timezone=True), nullable=False)
-    ipo_price = Column(Integer, nullable=False)
+    ipo_price = Column(Float, nullable=False)
     free_float = Column(Integer, nullable=False)
     major_shareholders = Column(Integer, nullable=False)
     created_at = Column(
@@ -107,7 +107,6 @@ class Orders(Base):
     account_id = Column(Integer, ForeignKey("accounts.id"))
     symbol = Column(String, ForeignKey("stocks.symbol"))
     stock_balance = Column(Integer, nullable=False)
-    order_id = Column(Integer, nullable=False)
     order_type = Column(String, nullable=False)
     order_status = Column(String, nullable=False)
     order_price = Column(Integer, nullable=False)
@@ -161,7 +160,6 @@ class Dividend(Base):
 class News(Base):
     __tablename__ = "news"
     id = Column(Integer, primary_key=True, nullable=False)
-    symbol = Column(String, ForeignKey("stocks.symbol"))
     file = Column(String, nullable=False)
     topic = Column(String, nullable=False)
     content = Column(String, nullable=False)
