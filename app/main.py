@@ -3,16 +3,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import models
 from .database import engine
 from .routers import (
-    post,
     user,
     auth,
-    vote,
     account,
     stock,
     broker,
     bank_tsc,
     order,
     news,
+    turnover,
+    dividend,
+)
+from settrade_v2 import Investor
+
+investor = Investor(
+    app_id="x878HsmA5yuk5XXR",
+    app_secret="Yp5VyFlBxTgmljVkAmxOUpJDfmq9iESD+RE469PjMU8=",
+    broker_id="SANDBOX",
+    app_code="SANDBOX",
+    is_auto_queue=False,
 )
 
 models.Base.metadata.create_all(bind=engine)
@@ -30,16 +39,16 @@ app.add_middleware(
 )
 
 
-app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
-app.include_router(vote.router)
 app.include_router(account.router)
 app.include_router(stock.router)
 app.include_router(broker.router)
 app.include_router(bank_tsc.router)
 app.include_router(order.router)
 app.include_router(news.router)
+app.include_router(turnover.router)
+app.include_router(dividend.router)
 
 
 @app.get("/")

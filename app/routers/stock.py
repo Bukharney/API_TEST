@@ -1,20 +1,10 @@
 from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
-from app import oauth2
+from app import oauth2, api
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
-from settrade_v2 import Investor
 
-investor = Investor(
-    app_id="x878HsmA5yuk5XXR",
-    app_secret="Yp5VyFlBxTgmljVkAmxOUpJDfmq9iESD+RE469PjMU8=",
-    broker_id="SANDBOX",
-    app_code="SANDBOX",
-    is_auto_queue=False,
-)
-
-market = investor.MarketData()
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 
@@ -89,7 +79,7 @@ def get_stock_market(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    res = market.get_quote_symbol("AOT")
+    res = api.get_candlestick(symbol, interval, limit)
 
     if not res:
         raise HTTPException(

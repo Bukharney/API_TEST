@@ -5,38 +5,10 @@ from typing import Optional
 from pydantic.types import conint
 
 
-class PostBase(BaseModel):
-    title: str
-    content: str
-    published: bool = True
-
-
-class PostCreate(PostBase):
-    pass
-
-
 class UserOut(BaseModel):
     id: int
     email: EmailStr
     created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
-class Post(PostBase):
-    id: int
-    created_at: datetime
-    owner_id: int
-    owner: UserOut
-
-    class Config:
-        orm_mode = True
-
-
-class PostOut(BaseModel):
-    Post: Post
-    votes: int
 
     class Config:
         orm_mode = True
@@ -59,11 +31,6 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[str] = None
-
-
-class Vote(BaseModel):
-    post_id: int
-    dir: conint(le=1)
 
 
 class Account(BaseModel):
@@ -174,3 +141,20 @@ class OrderOut(OrderCreate):
 class StockSearch(BaseModel):
     result: list[StockOut]
     count: int
+
+
+class DividendCreate(BaseModel):
+    symbol: str
+    account_id: int
+    value: int
+
+    class Config:
+        orm_mode = True
+
+
+class DividendOut(DividendCreate):
+    id: int
+    transaction_time: datetime
+
+    class Config:
+        orm_mode = True

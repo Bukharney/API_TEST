@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, BigInteger
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    ForeignKey,
+    Float,
+    BigInteger,
+    Numeric,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -134,13 +143,13 @@ class Transactions(Base):
 class Turnover(Base):
     __tablename__ = "turnover"
     id = Column(Integer, primary_key=True, nullable=False)
-    symbol = Column(String, ForeignKey("stocks.symbol"))
-    asset = Column(Integer, nullable=False)
-    dept = Column(Integer, nullable=False)
-    p_bv = Column(Integer, nullable=False)
-    eps = Column(Integer, nullable=False)
-    dividend_per_unit = Column(Integer, nullable=False)
-    net_profit = Column(Integer, nullable=False)
+    symbol = Column(String, ForeignKey("stocks.symbol"), nullable=False)
+    asset = Column(Integer)
+    dept = Column(Integer)
+    pbv = Column(Numeric, nullable=False)
+    eps = Column(Numeric, nullable=False)
+    dividend_per_unit = Column(Integer)
+    net_profit = Column(Integer)
     turnover_time = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
