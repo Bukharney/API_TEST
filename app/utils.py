@@ -92,7 +92,4 @@ def transactions(db):
                     db.refresh(buy_order)
                     db.refresh(sell_order)
 
-    return {
-        "buy_orders": buy_orders,
-        "sell_orders": sell_orders,
-    }
+    return True

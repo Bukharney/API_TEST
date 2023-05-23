@@ -9,6 +9,7 @@ router = APIRouter(prefix="/order", tags=["Order"])
 
 @router.post(
     "/",
+    response_model=schemas.OrderOut,
     status_code=status.HTTP_201_CREATED,
 )
 def create_order(
@@ -52,7 +53,7 @@ def create_order(
         db=db,
     )
 
-    return buy_orders
+    return new_order
 
 
 @router.get(
