@@ -1,5 +1,5 @@
 from fastapi import Depends, status, HTTPException, APIRouter
-from app import oauth2
+from app import oauth2, utils
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
@@ -9,7 +9,6 @@ router = APIRouter(prefix="/order", tags=["Order"])
 
 @router.post(
     "/",
-    response_model=schemas.OrderOut,
     status_code=status.HTTP_201_CREATED,
 )
 def create_order(
@@ -24,14 +23,36 @@ def create_order(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
+
+    symbol = db.query(models.Stock).filter(models.Stock.symbol == order.symbol).first()
+    if not symbol:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Symbol not found"
+        )
+
     new_order = models.Orders(**order.dict())
     new_order.matched = 0
-    new_order.stock_balance = order.order_volume
-    new_order.order_status = "Pending"
+    new_order.balance = order.volume
+    new_order.status = "O"
+    new_order.cancelled = 0
+
+    cost = order.volume * order.price
+    if order.side == "Buy":
+        if account.line_available < cost:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient balance"
+            )
+        account.line_available -= cost
+
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
-    return new_order
+
+    buy_orders = utils.transactions(
+        db=db,
+    )
+
+    return buy_orders
 
 
 @router.get(

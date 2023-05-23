@@ -71,9 +71,9 @@ class Accounts(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     broker_id = Column(Integer, ForeignKey("brokers.id"))
-    cash_balance = Column(Integer, nullable=False)
-    line_available = Column(Integer, nullable=False)
-    credit_limit = Column(Integer, nullable=False)
+    cash_balance = Column(Float, nullable=False)
+    line_available = Column(Float, nullable=False)
+    credit_limit = Column(Float, nullable=False)
     pin = Column(Integer, nullable=False)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
@@ -86,7 +86,7 @@ class Bank_transactions(Base):
     account_id = Column(Integer, ForeignKey("accounts.id"))
     transaction_type = Column(String, nullable=False)
     transaction_status = Column(String, nullable=False)
-    transaction_amount = Column(Integer, nullable=False)
+    transaction_amount = Column(Numeric, nullable=False)
     transaction_time = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
@@ -97,16 +97,16 @@ class Orders(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     account_id = Column(Integer, ForeignKey("accounts.id"))
     symbol = Column(String, ForeignKey("stocks.symbol"))
-    stock_balance = Column(Integer, nullable=False)
-    order_type = Column(String, nullable=False)
-    order_status = Column(String, nullable=False)
-    order_price = Column(Integer, nullable=False)
-    order_volume = Column(Integer, nullable=False)
-    order_side = Column(String, nullable=False)
+    balance = Column(Integer, nullable=False)
+    type = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    volume = Column(Integer, nullable=False)
+    side = Column(String, nullable=False)
     matched = Column(Integer, nullable=False)
     cancelled = Column(Integer, nullable=False)
     validity = Column(String, nullable=False)
-    order_time = Column(
+    time = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
@@ -115,7 +115,7 @@ class Transactions(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, nullable=False)
     order_id = Column(Integer, ForeignKey("orders.id"))
-    transaction_price = Column(Integer, nullable=False)
+    transaction_price = Column(Float, nullable=False)
     transaction_volume = Column(Integer, nullable=False)
     transaction_time = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
@@ -142,7 +142,7 @@ class Dividend(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     symbol = Column(String, ForeignKey("stocks.symbol"))
     account_id = Column(Integer, ForeignKey("accounts.id"))
-    value = Column(Integer, nullable=False)
+    value = Column(Float, nullable=False)
     transaction_time = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
@@ -155,3 +155,15 @@ class News(Base):
     topic = Column(String, nullable=False)
     content = Column(String, nullable=False)
     news_time = Column(TIMESTAMP(timezone=True), nullable=False)
+
+
+class Portfolio(Base):
+    __tablename__ = "portfolio"
+    id = Column(Integer, primary_key=True, nullable=False)
+    account_id = Column(Integer, ForeignKey("accounts.id"))
+    symbol = Column(String, ForeignKey("stocks.symbol"))
+    volume = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    created_at = Column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )

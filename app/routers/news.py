@@ -39,10 +39,27 @@ def get_news(
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):
-    response = api.news_api(country="th", category="business")
+    sql = text("DELETE FROM news;")
+    db.execute(sql)
+    db.commit()
 
-    for i in range(10):
-        news = response["results"][i]
+    response1 = api.news_api(country="th", category="business")
+    response2 = api.news_api(country="th", category="politics")
+
+    for i in range(len(response1["results"])):
+        news = response1["results"][i]
+        new_news = models.News(
+            topic=news["title"],
+            content=news["description"],
+            file=news["image_url"],
+            news_time=news["pubDate"],
+        )
+        db.add(new_news)
+        db.commit()
+        db.refresh(new_news)
+
+    for i in range(len(response2["results"])):
+        news = response2["results"][i]
         new_news = models.News(
             topic=news["title"],
             content=news["description"],

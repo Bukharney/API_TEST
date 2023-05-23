@@ -17,10 +17,22 @@ def create_account(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
+    broker = (
+        db.query(models.Broker).filter(models.Broker.id == account.broker_id).first()
+    )
+    if not broker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Given broker exists"
+        )
+
     new_account = models.Accounts(**account.dict(), user_id=current_user.id)
-    db.add(new_account)
-    db.commit()
-    db.refresh(new_account)
+    try:
+        db.add(new_account)
+        db.commit()
+        db.refresh(new_account)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
     return new_account
 
 

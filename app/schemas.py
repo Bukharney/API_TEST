@@ -2,8 +2,6 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
-from pydantic.types import conint
-
 
 class UserOut(BaseModel):
     id: int
@@ -119,11 +117,10 @@ class BankTransactionOut(BankTransactionCreate):
 class OrderCreate(BaseModel):
     account_id: int
     symbol: str
-    order_type: str
-    order_volume: int
-    order_price: int
-    order_side: str
-    cancelled: int
+    type: str
+    volume: int
+    price: float
+    side: str
     validity: str
 
     class Config:
@@ -132,7 +129,7 @@ class OrderCreate(BaseModel):
 
 class OrderOut(OrderCreate):
     id: int
-    order_time: datetime
+    time: datetime
 
     class Config:
         orm_mode = True
