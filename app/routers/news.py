@@ -48,25 +48,27 @@ def get_news(
 
     for i in range(len(response1["results"])):
         news = response1["results"][i]
-        new_news = models.News(
-            topic=news["title"],
-            content=news["description"],
-            file=news["image_url"],
-            news_time=news["pubDate"],
-        )
-        db.add(new_news)
-        db.commit()
-        db.refresh(new_news)
+        if not news["description"] != None:
+            new_news = models.News(
+                topic=news["title"],
+                content=news["description"],
+                file=news["image_url"],
+                news_time=news["pubDate"],
+            )
+            db.add(new_news)
+            db.commit()
+            db.refresh(new_news)
 
     for i in range(len(response2["results"])):
         news = response2["results"][i]
-        new_news = models.News(
-            topic=news["title"],
-            content=news["description"],
-            file=news["image_url"],
-            news_time=news["pubDate"],
-        )
-        db.add(new_news)
-        db.commit()
-        db.refresh(new_news)
+        if news["description"] != None:
+            new_news = models.News(
+                topic=news["title"],
+                content=news["description"],
+                file=news["image_url"],
+                news_time=news["pubDate"],
+            )
+            db.add(new_news)
+            db.commit()
+            db.refresh(new_news)
     return {"message": "News created"}
