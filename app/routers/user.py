@@ -39,6 +39,13 @@ def get_user(
     return user
 
 
+@router.get("/token", response_model=schemas.UserOut)
+def get_user(
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    return current_user
+
+
 @router.get("/{id}", response_model=schemas.UserOut)
 def get_user(
     id: int,
