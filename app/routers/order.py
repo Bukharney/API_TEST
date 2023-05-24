@@ -123,3 +123,27 @@ def get_orders(
     return {
         "result": "Order cancelled successfully",
     }
+
+
+@router.get(
+    "/endofday",
+)
+def get_orders(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    orders = db.query(models.Orders).filter(models.Orders.status == "O").all()
+    for order in orders:
+        order.cancelled = 1
+        order.status = "C"
+        account = (
+            db.query(models.Accounts)
+            .filter(models.Accounts.id == order.account_id)
+            .first()
+        )
+        account.line_available += order.balance * order.price
+
+    db.commit()
+    return {
+        "result": "End of day",
+    }

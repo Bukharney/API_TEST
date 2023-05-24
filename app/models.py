@@ -167,3 +167,15 @@ class Portfolio(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+
+class Notifications(Base):
+    __tablename__ = "notification"
+    id = Column(Integer, primary_key=True, nullable=False)
+    account_id = Column(Integer, ForeignKey("accounts.id"))
+    message = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    volume = Column(Integer, nullable=False)
+    created_at = Column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )

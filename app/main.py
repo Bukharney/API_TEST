@@ -14,6 +14,7 @@ from .routers import (
     turnover,
     dividend,
     portfolio,
+    nolti,
 )
 
 models.Base.metadata.create_all(bind=engine)
@@ -42,6 +43,7 @@ app.include_router(news.router)
 app.include_router(turnover.router)
 app.include_router(dividend.router)
 app.include_router(portfolio.router)
+app.include_router(nolti.router)
 
 
 @app.get("/")
