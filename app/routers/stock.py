@@ -62,6 +62,7 @@ def get_stock_search(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
+    symbol = symbol.upper()
     result = (
         db.query(models.Stock).filter(models.Stock.symbol.like(f"%{symbol}%")).all()
     )
@@ -86,6 +87,36 @@ def get_stock_market(
     if not res:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Stock not found"
+        )
+
+    return res
+
+
+@router.get("/price_info/{symbol}")
+def get_stock_market_price_info(
+    symbol: str,
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    res = api.get_price_info(symbol)
+
+    if not res:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Something went wrong"
+        )
+
+    return res
+
+
+@router.get("/bid_offer/{symbol}")
+def get_stock_market_bid_offer(
+    symbol: str,
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    res = api.get_bid_offer(symbol)
+
+    if not res:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Something went wrong"
         )
 
     return res
