@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
 from sqlalchemy import text
 from app import oauth2
@@ -11,6 +12,8 @@ router = APIRouter(prefix="/noti", tags=["Notification"])
 
 @router.get(
     "/{account_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=List[schemas.NotiOut],
 )
 def get_notification(
     account_id: int,
@@ -43,6 +46,7 @@ def get_notification(
 
 @router.get(
     "/delete/{noti_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_notification(
     noti_id: int,

@@ -46,226 +46,229 @@ def transactions(db):
         .all()
     )
 
-    for buy_order in buy_orders:
-        for sell_order in sell_orders:
-            if buy_order.account_id != sell_order.account_id:
-                account = (
-                    db.query(models.Accounts)
-                    .filter(models.Accounts.id == sell_order.account_id)
-                    .first()
-                )
-                if buy_order.symbol == sell_order.symbol:
-                    if buy_order.price >= sell_order.price:
-                        buyer_portfolio = (
-                            db.query(models.Portfolio)
-                            .filter(
-                                models.Portfolio.account_id == buy_order.account_id,
-                                models.Portfolio.symbol == buy_order.symbol,
-                                models.Portfolio.price == buy_order.price,
+    if buy_orders and sell_orders:
+        for buy_order in buy_orders:
+            for sell_order in sell_orders:
+                if buy_order.account_id != sell_order.account_id:
+                    account = (
+                        db.query(models.Accounts)
+                        .filter(models.Accounts.id == sell_order.account_id)
+                        .first()
+                    )
+                    if buy_order.symbol == sell_order.symbol:
+                        if buy_order.price >= sell_order.price:
+                            buyer_portfolio = (
+                                db.query(models.Portfolio)
+                                .filter(
+                                    models.Portfolio.account_id == buy_order.account_id,
+                                    models.Portfolio.symbol == buy_order.symbol,
+                                    models.Portfolio.price == buy_order.price,
+                                )
+                                .first()
                             )
-                            .first()
-                        )
-                        seller_portfolio = (
-                            db.query(models.Portfolio)
-                            .filter(
-                                models.Portfolio.account_id == sell_order.account_id,
-                                models.Portfolio.symbol == sell_order.symbol,
-                                models.Portfolio.price == sell_order.price,
+                            seller_portfolio = (
+                                db.query(models.Portfolio)
+                                .filter(
+                                    models.Portfolio.account_id
+                                    == sell_order.account_id,
+                                    models.Portfolio.symbol == sell_order.symbol,
+                                    models.Portfolio.price == sell_order.price,
+                                )
+                                .first()
                             )
-                            .first()
-                        )
-                        if buy_order.balance > sell_order.balance:
-                            buy_transaction = models.Transactions(
-                                order_id=buy_order.id,
-                                transaction_price=sell_order.price,
-                                transaction_volume=sell_order.balance,
-                            )
-                            sell_transaction = models.Transactions(
-                                order_id=sell_order.id,
-                                transaction_price=sell_order.price,
-                                transaction_volume=sell_order.balance,
-                            )
+                            if buy_order.balance > sell_order.balance:
+                                buy_transaction = models.Transactions(
+                                    order_id=buy_order.id,
+                                    transaction_price=sell_order.price,
+                                    transaction_volume=sell_order.balance,
+                                )
+                                sell_transaction = models.Transactions(
+                                    order_id=sell_order.id,
+                                    transaction_price=sell_order.price,
+                                    transaction_volume=sell_order.balance,
+                                )
 
-                            if not buyer_portfolio:
-                                buyer_portfolio = models.Portfolio(
-                                    account_id=buy_order.account_id,
-                                    symbol=buy_order.symbol,
-                                    volume=0,
-                                    price=sell_order.price,
-                                )
+                                db.add(buy_transaction)
+                                db.add(sell_transaction)
+
+                                if not buyer_portfolio:
+                                    buyer_portfolio = models.Portfolio(
+                                        account_id=buy_order.account_id,
+                                        symbol=buy_order.symbol,
+                                        volume=0,
+                                        price=sell_order.price,
+                                    )
+                                    db.add(buyer_portfolio)
+                                if not seller_portfolio:
+                                    seller_portfolio = models.Portfolio(
+                                        account_id=sell_order.account_id,
+                                        symbol=sell_order.symbol,
+                                        volume=0,
+                                        price=sell_order.price,
+                                    )
+                                    db.add(seller_portfolio)
+
+                                buyer_portfolio.volume += sell_order.balance
+                                seller_portfolio.volume -= sell_order.balance
                                 db.add(buyer_portfolio)
-                            if not seller_portfolio:
-                                seller_portfolio = models.Portfolio(
-                                    account_id=sell_order.account_id,
-                                    symbol=sell_order.symbol,
-                                    volume=0,
-                                    price=sell_order.price,
-                                )
                                 db.add(seller_portfolio)
 
-                            buyer_portfolio.volume += sell_order.balance
-                            seller_portfolio.volume -= sell_order.balance
-                            db.add(buyer_portfolio)
-                            db.add(seller_portfolio)
+                                account.line_available += (
+                                    sell_order.balance * sell_order.price
+                                )
 
-                            db.add(buy_transaction)
-                            db.add(sell_transaction)
-
-                            account.line_available += (
-                                sell_order.balance * sell_order.price
-                            )
-
-                            buyer_nolti = models.Notifications(
-                                account_id=buy_order.account_id,
-                                message=f"Your order BUY : {buy_order.symbol} was executed",
-                                price=sell_order.price,
-                                volume=sell_order.balance,
-                            )
-                            seller_nolti = models.Notifications(
-                                account_id=sell_order.account_id,
-                                message=f"Your order SELL: {sell_order.symbol} was executed and closed",
-                                price=sell_order.price,
-                                volume=sell_order.balance,
-                            )
-                            db.add(buyer_nolti)
-                            db.add(seller_nolti)
-                            buy_order.balance -= sell_order.balance
-                            sell_order.balance = 0
-                            sell_order.status = "C"
-                            sell_order.matched = sell_order.volume
-                            buy_order.matched = buy_order.volume - buy_order.balance
-
-                        elif buy_order.balance < sell_order.balance:
-                            buy_transaction = models.Transactions(
-                                order_id=buy_order.id,
-                                transaction_price=sell_order.price,
-                                transaction_volume=buy_order.balance,
-                            )
-                            sell_transaction = models.Transactions(
-                                order_id=sell_order.id,
-                                transaction_price=sell_order.price,
-                                transaction_volume=buy_order.balance,
-                            )
-
-                            if not buyer_portfolio:
-                                buyer_portfolio = models.Portfolio(
+                                buyer_nolti = models.Notifications(
                                     account_id=buy_order.account_id,
-                                    symbol=buy_order.symbol,
-                                    volume=0,
+                                    message=f"Your order BUY : {buy_order.symbol} was executed",
                                     price=sell_order.price,
+                                    volume=sell_order.balance,
                                 )
-                                db.add(buyer_portfolio)
-                            if not seller_portfolio:
-                                seller_portfolio = models.Portfolio(
+                                seller_nolti = models.Notifications(
                                     account_id=sell_order.account_id,
-                                    symbol=sell_order.symbol,
-                                    volume=0,
+                                    message=f"Your order SELL : {sell_order.symbol} was executed and closed",
                                     price=sell_order.price,
+                                    volume=sell_order.balance,
                                 )
+                                db.add(buyer_nolti)
+                                db.add(seller_nolti)
+
+                                buy_order.balance -= sell_order.balance
+                                sell_order.balance = 0
+                                sell_order.status = "C"
+                                sell_order.matched = sell_order.volume
+                                buy_order.matched = buy_order.volume - buy_order.balance
+
+                            elif buy_order.balance < sell_order.balance:
+                                buy_transaction = models.Transactions(
+                                    order_id=buy_order.id,
+                                    transaction_price=sell_order.price,
+                                    transaction_volume=buy_order.balance,
+                                )
+                                sell_transaction = models.Transactions(
+                                    order_id=sell_order.id,
+                                    transaction_price=sell_order.price,
+                                    transaction_volume=buy_order.balance,
+                                )
+                                db.add(buy_transaction)
+                                db.add(sell_transaction)
+
+                                if not buyer_portfolio:
+                                    buyer_portfolio = models.Portfolio(
+                                        account_id=buy_order.account_id,
+                                        symbol=buy_order.symbol,
+                                        volume=0,
+                                        price=sell_order.price,
+                                    )
+                                    db.add(buyer_portfolio)
+                                if not seller_portfolio:
+                                    seller_portfolio = models.Portfolio(
+                                        account_id=sell_order.account_id,
+                                        symbol=sell_order.symbol,
+                                        volume=0,
+                                        price=sell_order.price,
+                                    )
+                                    db.add(seller_portfolio)
+
+                                buyer_portfolio.volume += buy_order.balance
+                                seller_portfolio.volume -= buy_order.balance
+
+                                account.line_available += (
+                                    buy_order.balance
+                                ) * sell_order.price
+
+                                buyer_nolti = models.Notifications(
+                                    account_id=buy_order.account_id,
+                                    message=f"Your order BUY : {buy_order.symbol} was executed and closed",
+                                    price=sell_order.price,
+                                    volume=buy_order.balance,
+                                )
+                                seller_nolti = models.Notifications(
+                                    account_id=sell_order.account_id,
+                                    message=f"Your order SELL : {sell_order.symbol} was executed",
+                                    price=sell_order.price,
+                                    volume=buy_order.balance,
+                                )
+                                db.add(buyer_nolti)
+                                db.add(seller_nolti)
+
+                                sell_order.balance -= buy_order.balance
+                                buy_order.balance = 0
+                                buy_order.status = "C"
+                                buy_order.matched = buy_order.volume
+                                sell_order.matched = (
+                                    sell_order.volume - sell_order.balance
+                                )
+
+                            else:
+                                buy_transaction = models.Transactions(
+                                    order_id=buy_order.id,
+                                    transaction_price=sell_order.price,
+                                    transaction_volume=buy_order.balance,
+                                )
+                                sell_transaction = models.Transactions(
+                                    order_id=sell_order.id,
+                                    transaction_price=sell_order.price,
+                                    transaction_volume=buy_order.balance,
+                                )
+                                db.add(buy_transaction)
+                                db.add(sell_transaction)
+
+                                if not buyer_portfolio:
+                                    buyer_portfolio = models.Portfolio(
+                                        account_id=buy_order.account_id,
+                                        symbol=buy_order.symbol,
+                                        volume=0,
+                                        price=sell_order.price,
+                                    )
+                                    db.add(buyer_portfolio)
+                                if not seller_portfolio:
+                                    seller_portfolio = models.Portfolio(
+                                        account_id=sell_order.account_id,
+                                        symbol=sell_order.symbol,
+                                        volume=0,
+                                        price=sell_order.price,
+                                    )
+                                    db.add(seller_portfolio)
+
+                                buyer_portfolio.volume += sell_order.balance
+                                seller_portfolio.volume -= sell_order.balance
+                                db.add(buyer_portfolio)
                                 db.add(seller_portfolio)
 
-                            buyer_portfolio.volume += buy_order.balance
-                            seller_portfolio.volume -= buy_order.balance
-                            db.add(buyer_portfolio)
-                            db.add(seller_portfolio)
+                                account.line_available += (
+                                    sell_order.balance * sell_order.price
+                                )
 
-                            db.add(buy_transaction)
-                            db.add(sell_transaction)
-
-                            account.line_available += (
-                                buy_order.balance
-                            ) * sell_order.price
-
-                            buyer_nolti = models.Notifications(
-                                account_id=buy_order.account_id,
-                                message=f"Your order BUY : {buy_order.symbol} was executed and closed",
-                                price=sell_order.price,
-                                volume=buy_order.balance,
-                            )
-                            seller_nolti = models.Notifications(
-                                account_id=sell_order.account_id,
-                                message=f"Your order SELL: {sell_order.symbol} was executed",
-                                price=sell_order.price,
-                                volume=buy_order.balance,
-                            )
-                            db.add(buyer_nolti)
-                            db.add(seller_nolti)
-                            sell_order.balance -= buy_order.balance
-                            buy_order.balance = 0
-                            buy_order.status = "C"
-                            buy_order.matched = buy_order.volume
-                            sell_order.matched = sell_order.volume - sell_order.balance
-
-                        else:
-                            buy_transaction = models.Transactions(
-                                order_id=buy_order.id,
-                                transaction_price=sell_order.price,
-                                transaction_volume=buy_order.balance,
-                            )
-                            sell_transaction = models.Transactions(
-                                order_id=sell_order.id,
-                                transaction_price=sell_order.price,
-                                transaction_volume=buy_order.balance,
-                            )
-
-                            if not buyer_portfolio:
-                                buyer_portfolio = models.Portfolio(
+                                buyer_nolti = models.Notifications(
                                     account_id=buy_order.account_id,
-                                    symbol=buy_order.symbol,
-                                    volume=0,
+                                    message=f"Your order BUY : {buy_order.symbol} was executed and closed",
                                     price=sell_order.price,
+                                    volume=sell_order.balance,
                                 )
-                                db.add(buyer_portfolio)
-                            if not seller_portfolio:
-                                seller_portfolio = models.Portfolio(
+                                seller_nolti = models.Notifications(
                                     account_id=sell_order.account_id,
-                                    symbol=sell_order.symbol,
-                                    volume=0,
+                                    message=f"Your order SELL : {sell_order.symbol} was executed and closed",
                                     price=sell_order.price,
+                                    volume=sell_order.balance,
                                 )
-                                db.add(seller_portfolio)
+                                db.add(buyer_nolti)
+                                db.add(seller_nolti)
 
-                            buyer_portfolio.volume += sell_order.balance
-                            seller_portfolio.volume -= sell_order.balance
-                            db.add(buyer_portfolio)
-                            db.add(seller_portfolio)
+                                sell_order.balance = 0
+                                buy_order.balance = 0
+                                buy_order.status = "C"
+                                sell_order.status = "C"
+                                buy_order.matched = buy_order.volume
+                                sell_order.matched = sell_order.volume
 
-                            db.add(buy_transaction)
-                            db.add(sell_transaction)
-
-                            account.line_available += (
-                                sell_order.balance * sell_order.price
-                            )
-
-                            buyer_nolti = models.Notifications(
-                                account_id=buy_order.account_id,
-                                message=f"Your order BUY : {buy_order.symbol} was executed and closed",
-                                price=sell_order.price,
-                                volume=sell_order.balance,
-                            )
-                            seller_nolti = models.Notifications(
-                                account_id=sell_order.account_id,
-                                message=f"Your order SELL: {sell_order.symbol} was executed and closed",
-                                price=sell_order.price,
-                                volume=sell_order.balance,
-                            )
-                            db.add(buyer_nolti)
-                            db.add(seller_nolti)
-                            sell_order.balance = 0
-                            buy_order.balance = 0
-                            buy_order.status = "C"
-                            sell_order.status = "C"
-                            buy_order.matched = buy_order.volume
-                            sell_order.matched = sell_order.volume
-
-                        db.commit()
-                        db.refresh(buy_order)
-                        db.refresh(sell_order)
-                        db.refresh(buyer_portfolio)
-                        db.refresh(seller_portfolio)
-                        db.refresh(account)
-                        db.refresh(buyer_nolti)
-                        db.refresh(seller_nolti)
+                            db.commit()
+                            db.refresh(buy_order)
+                            db.refresh(sell_order)
+                            db.refresh(buyer_portfolio)
+                            db.refresh(seller_portfolio)
+                            db.refresh(account)
+                            db.refresh(buyer_nolti)
+                            db.refresh(seller_nolti)
 
     return True
 
@@ -276,6 +279,9 @@ def get_portfolio(db, account_id):
         .filter(models.Portfolio.account_id == account_id)
         .all()
     )
+
+    if not port:
+        return False
 
     symbol_volume = {}
     symbol_total_price = {}
@@ -289,25 +295,25 @@ def get_portfolio(db, account_id):
             symbol_volume[symbol] = 0
             symbol_total_price[symbol] = 0
 
-        symbol_volume[symbol] += volume
-        symbol_total_price[symbol] += volume * price
+        if volume > 0:
+            symbol_volume[symbol] += volume
+            symbol_total_price[symbol] += volume * price
 
     result = []
     print("Net Volume and Average Price for Each Symbol:")
     for symbol in symbol_volume:
         volume = symbol_volume[symbol]
         total_price = symbol_total_price[symbol]
-        avg_price = total_price / abs(volume)
+        if volume <= 0:
+            avg_price = 0
+        else:
+            avg_price = total_price / abs(volume)
         print(symbol, "Net Volume:", volume, "Average Price:", avg_price)
         result.append(
             {
                 "symbol": symbol,
                 "volume": volume,
-                "average_price": round(avg_price, 2),
+                "avg_price": round(avg_price, 2),
             }
         )
-    if len(result) == 0:
-        return {
-            "message": "No portfolio for this account",
-        }
     return result

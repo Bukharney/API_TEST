@@ -22,7 +22,7 @@ def create_account(
     )
     if not broker:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Given broker exists"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Given broker not found"
         )
 
     new_account = models.Accounts(**account.dict(), user_id=current_user.id)

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 
@@ -63,8 +63,8 @@ class StockCreate(BaseModel):
     telephone: str
     website: str
     registered_capital: int
-    established_date: datetime
-    market_entry_date: datetime
+    established_date: date
+    market_entry_date: date
     ipo_price: float
     free_float: int
     major_shareholders: int
@@ -152,6 +152,25 @@ class DividendCreate(BaseModel):
 class DividendOut(DividendCreate):
     id: int
     transaction_time: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class NotiOut(BaseModel):
+    message: str
+    volume: int
+    price: float
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class PortfolioOut(BaseModel):
+    symbol: str
+    volume: int
+    avg_price: float
 
     class Config:
         orm_mode = True

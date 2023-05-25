@@ -1,5 +1,6 @@
 from sqlalchemy import (
     Column,
+    Date,
     Integer,
     String,
     ForeignKey,
@@ -45,8 +46,8 @@ class Stock(Base):
     telephone = Column(String, nullable=False)
     website = Column(String, nullable=False)
     registered_capital = Column(BigInteger, nullable=False)
-    established_date = Column(TIMESTAMP(timezone=True), nullable=False)
-    market_entry_date = Column(TIMESTAMP(timezone=True), nullable=False)
+    established_date = Column(Date, nullable=False)
+    market_entry_date = Column(Date, nullable=False)
     ipo_price = Column(Float, nullable=False)
     free_float = Column(Integer, nullable=False)
     major_shareholders = Column(Integer, nullable=False)
