@@ -166,6 +166,16 @@ class NotiOut(BaseModel):
         orm_mode = True
 
 
+class PortfolioCreate(BaseModel):
+    account_id: int
+    symbol: str
+    volume: int
+    price: float
+
+    class Config:
+        orm_mode = True
+
+
 class PortfolioOut(BaseModel):
     symbol: str
     volume: int

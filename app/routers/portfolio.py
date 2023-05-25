@@ -36,3 +36,65 @@ def get_portfolio(
         )
 
     return result
+
+
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_portfolio(
+    portfolio: schemas.PortfolioCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role == "user":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Only brokers and admins can create portfolios",
+        )
+
+    broker_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.user_id == current_user.id)
+        .first()
+    )
+
+    if not broker_account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+
+    user_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.id == portfolio.account_id)
+        .first()
+    )
+
+    if current_user.role != "broker":
+        if broker_account.broker_id != user_account.broker_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only create portfolios for your own broker",
+            )
+
+    portfolio_exists = (
+        db.query(models.Portfolio)
+        .filter(models.Portfolio.account_id == portfolio.account_id)
+        .filter(models.Portfolio.symbol == portfolio.symbol)
+        .filter(models.Portfolio.price == portfolio.price)
+        .first()
+    )
+
+    if portfolio_exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Portfolio already exists",
+        )
+
+    new_portfolio = models.Portfolio(**portfolio.dict())
+    db.add(new_portfolio)
+    db.commit()
+    db.refresh(new_portfolio)
+    return {
+        "status": "success",
+    }
