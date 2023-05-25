@@ -45,6 +45,8 @@ def transactions(db):
     if buy_orders and sell_orders:
         for buy_order in buy_orders:
             for sell_order in sell_orders:
+                if buy_order.status == "C" or sell_order.status == "C":
+                    break
                 if buy_order.account_id != sell_order.account_id:
                     account = (
                         db.query(models.Accounts)
@@ -83,7 +85,6 @@ def transactions(db):
                                     price=sell_order.price,
                                     volume=sell_order.balance,
                                 )
-
                                 db.add(buy_transaction)
                                 db.add(sell_transaction)
 
@@ -133,7 +134,6 @@ def transactions(db):
                                 sell_order.status = "C"
                                 sell_order.matched = sell_order.volume
                                 buy_order.matched = buy_order.volume - buy_order.balance
-
                             elif buy_order.balance < sell_order.balance:
                                 buy_transaction = models.Transactions(
                                     order_id=buy_order.id,
@@ -167,6 +167,8 @@ def transactions(db):
 
                                 buyer_portfolio.volume += buy_order.balance
                                 seller_portfolio.volume -= buy_order.balance
+                                db.add(buyer_portfolio)
+                                db.add(seller_portfolio)
 
                                 account.line_available += (
                                     buy_order.balance
@@ -194,8 +196,7 @@ def transactions(db):
                                 sell_order.matched = (
                                     sell_order.volume - sell_order.balance
                                 )
-
-                            else:
+                            elif buy_order.balance == sell_order.balance:
                                 buy_transaction = models.Transactions(
                                     order_id=buy_order.id,
                                     price=sell_order.price,
