@@ -35,6 +35,7 @@ def login(
         logout=utils.get_current_time()
         + timedelta(minutes=oauth2.ACCESS_TOKEN_EXPIRE_MINUTES),
         device="desktop",
+        ip="0.0.0.0",
     )
 
     db.add(login)

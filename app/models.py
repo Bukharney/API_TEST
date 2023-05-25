@@ -18,6 +18,7 @@ from .database import Base
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, nullable=False)
+    role = Column(String, nullable=False, default="user")
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     created_at = Column(
@@ -65,6 +66,7 @@ class Login_Logout(Base):
     )
     logout = Column(TIMESTAMP(timezone=True))
     device = Column(String)
+    ip = Column(String)
 
 
 class Accounts(Base):

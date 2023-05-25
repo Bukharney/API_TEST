@@ -98,15 +98,15 @@ class BrokerCreate(BaseModel):
 
 class BankTransactionCreate(BaseModel):
     account_id: int
-    transaction_type: str
-    transaction_status: str
-    transaction_amount: int
+    type: str
+    status: str
+    amount: int
 
     class Config:
         orm_mode = True
 
 
-class BankTransactionOut(BankTransactionCreate):
+class BankTransactionOut(BaseModel):
     id: int
     transaction_time: datetime
 
