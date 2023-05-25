@@ -47,18 +47,15 @@ def create_order(
             )
         account.line_available -= cost
     elif order.side == "Sell":
+        if not port:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="No stocks to sell"
+            )
         for item in port:
-            if not port:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="No stocks to sell"
-                )
             volume = item["volume"]
             symbol = item["symbol"]
-            print(symbol, volume)
             if symbol == order.symbol:
-                print("symbol matched")
                 if volume < order.volume:
-                    print(symbol, volume)
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="You don't have enough stocks to sell",
