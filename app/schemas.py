@@ -157,6 +157,7 @@ class DividendOut(DividendCreate):
 
 
 class NotiOut(BaseModel):
+    id: int
     message: str
     volume: int
     price: float
