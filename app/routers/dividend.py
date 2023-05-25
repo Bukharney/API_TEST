@@ -17,6 +17,30 @@ def create_dividend(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
+    if not current_user.role != "broker":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only brokers can create dividends",
+        )
+
+    broker_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.user_id == current_user.id)
+        .first()
+    )
+
+    client_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.id == dividend.account_id)
+        .first()
+    )
+
+    if not broker_account.broker_id == client_account.broker_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only create dividends for your own broker",
+        )
+
     new_dividend = models.Dividend(**dividend.dict())
     db.add(new_dividend)
     db.commit()

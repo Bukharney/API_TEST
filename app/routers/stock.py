@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
-from app import oauth2, api
+from app import oauth2, api, utils
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
@@ -23,10 +23,12 @@ def create_stock(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Stock with given symbol already exists",
         )
+
     new_stock = models.Stock(**stock.dict())
     db.add(new_stock)
     db.commit()
     db.refresh(new_stock)
+    get_quote = utils.get_quote(db)
     return new_stock
 
 

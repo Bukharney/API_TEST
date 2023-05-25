@@ -87,10 +87,9 @@ class Bank_transactions(Base):
     __tablename__ = "bank_tsc"
     id = Column(Integer, primary_key=True, nullable=False)
     account_id = Column(Integer, ForeignKey("accounts.id"))
-    transaction_type = Column(String, nullable=False)
-    transaction_status = Column(String, nullable=False)
-    transaction_amount = Column(Numeric, nullable=False)
-    transaction_time = Column(
+    type = Column(String, nullable=False)
+    amount = Column(Numeric, nullable=False)
+    timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
@@ -118,9 +117,9 @@ class Transactions(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, nullable=False)
     order_id = Column(Integer, ForeignKey("orders.id"))
-    transaction_price = Column(Float, nullable=False)
-    transaction_volume = Column(Integer, nullable=False)
-    transaction_time = Column(
+    price = Column(Float, nullable=False)
+    volume = Column(Integer, nullable=False)
+    timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
@@ -135,7 +134,7 @@ class Turnover(Base):
     eps = Column(Numeric, nullable=False)
     dividend_per_unit = Column(Integer)
     net_profit = Column(Integer)
-    turnover_time = Column(
+    timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
@@ -146,7 +145,7 @@ class Dividend(Base):
     symbol = Column(String, ForeignKey("stocks.symbol"))
     account_id = Column(Integer, ForeignKey("accounts.id"))
     value = Column(Float, nullable=False)
-    transaction_time = Column(
+    timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 

@@ -99,7 +99,6 @@ class BrokerCreate(BaseModel):
 class BankTransactionCreate(BaseModel):
     account_id: int
     type: str
-    status: str
     amount: int
 
     class Config:
@@ -108,7 +107,7 @@ class BankTransactionCreate(BaseModel):
 
 class BankTransactionOut(BaseModel):
     id: int
-    transaction_time: datetime
+    timestamp: datetime
 
     class Config:
         orm_mode = True
@@ -151,7 +150,7 @@ class DividendCreate(BaseModel):
 
 class DividendOut(DividendCreate):
     id: int
-    transaction_time: datetime
+    timestamp: datetime
 
     class Config:
         orm_mode = True

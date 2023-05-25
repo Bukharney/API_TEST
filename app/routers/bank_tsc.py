@@ -24,23 +24,34 @@ def create_bank_transaction(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Only brokers can create bank transactions",
         )
-    new_bank_transaction = models.Bank_transactions(**bank_transaction.dict())
+
+    broker_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.user_id == current_user.id)
+        .first()
+    )
+
     account = (
         db.query(models.Accounts)
         .filter(models.Accounts.id == bank_transaction.account_id)
         .first()
     )
-
     if not account:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+
+    if not broker_account.broker_id == account.broker_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only create bank transactions for your own broker",
         )
 
     if bank_transaction.type == "deposit":
         account.cash_balance += bank_transaction.amount
         account.line_available += bank_transaction.amount
     elif bank_transaction.type == "withdraw":
-        if account.cash_balance < bank_transaction.amount:
+        if account.line_available < bank_transaction.amount:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Not enough funds in account",
@@ -53,6 +64,7 @@ def create_bank_transaction(
             detail="Bank transaction type must be deposit or withdraw",
         )
 
+    new_bank_transaction = models.Bank_transactions(**bank_transaction.dict())
     db.add(new_bank_transaction)
     db.commit()
     db.refresh(new_bank_transaction)

@@ -1,6 +1,6 @@
 import datetime
 from passlib.context import CryptContext
-from sqlalchemy import func
+from app import api
 
 from . import models
 
@@ -17,10 +17,6 @@ def verify(password: str, hashed_password: str):
 
 def get_current_time():
     return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-
-
-def manage_order(db, order):
-    return True
 
 
 def transactions(db):
@@ -79,13 +75,13 @@ def transactions(db):
                             if buy_order.balance > sell_order.balance:
                                 buy_transaction = models.Transactions(
                                     order_id=buy_order.id,
-                                    transaction_price=sell_order.price,
-                                    transaction_volume=sell_order.balance,
+                                    price=sell_order.price,
+                                    volume=sell_order.balance,
                                 )
                                 sell_transaction = models.Transactions(
                                     order_id=sell_order.id,
-                                    transaction_price=sell_order.price,
-                                    transaction_volume=sell_order.balance,
+                                    price=sell_order.price,
+                                    volume=sell_order.balance,
                                 )
 
                                 db.add(buy_transaction)
@@ -141,13 +137,13 @@ def transactions(db):
                             elif buy_order.balance < sell_order.balance:
                                 buy_transaction = models.Transactions(
                                     order_id=buy_order.id,
-                                    transaction_price=sell_order.price,
-                                    transaction_volume=buy_order.balance,
+                                    price=sell_order.price,
+                                    volume=buy_order.balance,
                                 )
                                 sell_transaction = models.Transactions(
                                     order_id=sell_order.id,
-                                    transaction_price=sell_order.price,
-                                    transaction_volume=buy_order.balance,
+                                    price=sell_order.price,
+                                    volume=buy_order.balance,
                                 )
                                 db.add(buy_transaction)
                                 db.add(sell_transaction)
@@ -202,13 +198,13 @@ def transactions(db):
                             else:
                                 buy_transaction = models.Transactions(
                                     order_id=buy_order.id,
-                                    transaction_price=sell_order.price,
-                                    transaction_volume=buy_order.balance,
+                                    price=sell_order.price,
+                                    volume=buy_order.balance,
                                 )
                                 sell_transaction = models.Transactions(
                                     order_id=sell_order.id,
-                                    transaction_price=sell_order.price,
-                                    transaction_volume=buy_order.balance,
+                                    price=sell_order.price,
+                                    volume=buy_order.balance,
                                 )
                                 db.add(buy_transaction)
                                 db.add(sell_transaction)
@@ -317,3 +313,38 @@ def get_portfolio(db, account_id):
             }
         )
     return result
+
+
+def get_quote(db):
+    symbol = db.query(models.Stock).all()
+    if not symbol:
+        return False
+    for i in symbol:
+        res = api.get_quote_symbol(i.symbol)
+        if not res:
+            return False
+        if (
+            not db.query(models.Turnover)
+            .filter(models.Turnover.symbol == i.symbol)
+            .first()
+        ):
+            turnover = models.Turnover(
+                symbol=i.symbol,
+                pbv=res["pbv"],
+                eps=res["eps"],
+            )
+            db.add(turnover)
+            db.commit()
+            db.refresh(turnover)
+        else:
+            update_turnover = (
+                db.query(models.Turnover)
+                .filter(models.Turnover.symbol == i.symbol)
+                .first()
+            )
+            update_turnover.pbv = res["pbv"]
+            update_turnover.eps = res["eps"]
+            db.commit()
+            db.refresh(update_turnover)
+
+    return True
