@@ -38,7 +38,7 @@ def create_order(
     new_order.cancelled = 0
     cost = order.volume * order.price
 
-    port = utils.get_portfolio(db=db, account_id=order.account_id, symbol=order.symbol)
+    port = utils.get_portfolio(db=db, account_id=order.account_id)
 
     if order.side == "Buy":
         if account.line_available < cost:
