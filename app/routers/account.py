@@ -79,7 +79,7 @@ def get_portfolio(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role != "broker":
+    if current_user.role == "user":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are not authorized to perform this action",

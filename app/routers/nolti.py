@@ -34,6 +34,7 @@ def get_notification(
     noti = (
         db.query(models.Notifications)
         .filter(models.Notifications.account_id == account_id)
+        .order_by(models.Notifications.created_at.desc())
         .all()
     )
     if not noti:

@@ -16,7 +16,7 @@ def get_news(
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):
-    news = db.query(models.News).order_by(models.News.id.desc()).all()
+    news = db.query(models.News).order_by(models.News.news_time.desc()).all()
     if not news:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="News not found"

@@ -70,7 +70,7 @@ def create_portfolio(
         .first()
     )
 
-    if current_user.role != "broker":
+    if current_user.role == "broker":
         if broker_account.broker_id != user_account.broker_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
