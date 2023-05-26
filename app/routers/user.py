@@ -46,6 +46,31 @@ def get_user(
     return current_user
 
 
+@router.get("/login_info", response_model=list[schemas.LoginOut])
+def update_user_login_info(
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
+        )
+    login = (
+        db.query(models.Login_Logout)
+        .filter(models.Login_Logout.user_id == current_user.id)
+        .order_by(models.Login_Logout.id.desc())
+        .all()
+    )
+
+    if not login:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Something went wrong, please try again",
+        )
+    return login
+
+
 @router.get("/{id}", response_model=schemas.UserOut)
 def get_user(
     id: int,
@@ -58,28 +83,3 @@ def get_user(
             status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
         )
     return user
-
-
-@router.get("/login_info", response_model=list[schemas.LoginOut])
-def update_user_login_info(
-    db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user),
-):
-    user = db.query(models.User).filter(models.User.id == id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
-        )
-    login = (
-        db.query(models.Login_Logout)
-        .filter(models.Login_Logout.user_id == current_user.id)
-        .order_by(models.Login_Logout.login.desc())
-        .all()
-    )
-
-    if not login:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Something went wrong, please try again",
-        )
-    return login
