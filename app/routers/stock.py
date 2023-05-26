@@ -138,4 +138,13 @@ def get_my_transactions(
         .all()
     )
 
+    for transaction in transactions:
+        order = (
+            db.query(models.Orders)
+            .filter(models.Orders.id == transaction.order_id)
+            .first()
+        )
+        transaction.symbol = order.symbol
+        transaction.side = order.side
+
     return transactions
