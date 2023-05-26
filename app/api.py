@@ -220,6 +220,7 @@ def get_market_data(symbol: str):
     )
 
     data5 = mkt_data.get_quote_symbol(symbol)
+    time.sleep(5)
 
     return {
         "bid_offer": data1,
