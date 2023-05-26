@@ -38,6 +38,7 @@ def get_portfolio(
     for symbol in result:
         price_info = api.get_price_info(symbol["symbol"])
         symbol["last_price"] = price_info["last"]
+        symbol["change"] = price_info["change"]
 
     return result
 
