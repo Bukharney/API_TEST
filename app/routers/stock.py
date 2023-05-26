@@ -135,6 +135,7 @@ def get_my_transactions(
             onclause=models.Transactions.order_id == models.Orders.id,
         )
         .filter(models.Orders.account_id == account_id)
+        .order_by(models.Transactions.timestamp.desc())
         .all()
     )
 

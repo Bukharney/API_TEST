@@ -92,6 +92,7 @@ def get_all_bank_transactions(
     bank_transactions = (
         db.query(models.Bank_transactions)
         .filter(current_user.id == account.user_id)
+        .order_by(models.Bank_transactions.timestamp.desc())
         .all()
     )
 
