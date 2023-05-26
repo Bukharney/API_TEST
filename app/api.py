@@ -208,12 +208,14 @@ def get_market_data(symbol: str):
         symbol=symbol,
         interval="1d",
         limit=1,
+        normalized=True,
     )
 
     data4 = mkt_data.get_candlestick(
         symbol=symbol,
         interval="1d",
-        limit=288,
+        limit=50,
+        normalized=True,
     )
 
     data5 = mkt_data.get_quote_symbol(symbol)
