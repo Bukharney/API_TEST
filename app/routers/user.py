@@ -60,9 +60,8 @@ def get_user(
     return user
 
 
-@router.get("/login_info/{id}", response_model=list[schemas.LoginOut])
+@router.get("/login_info", response_model=list[schemas.LoginOut])
 def update_user_login_info(
-    id: int,
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):
@@ -73,7 +72,7 @@ def update_user_login_info(
         )
     login = (
         db.query(models.Login_Logout)
-        .filter(models.Login_Logout.user_id == id)
+        .filter(models.Login_Logout.user_id == current_user.id)
         .order_by(models.Login_Logout.login.desc())
         .all()
     )

@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
 from sqlalchemy import func
-from app import oauth2, utils
+from app import api, oauth2, utils
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
@@ -34,6 +34,10 @@ def get_portfolio(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found"
         )
+
+    for symbol in result:
+        price_info = api.get_price_info(symbol["symbol"])
+        symbol["last_price"] = price_info["last"]
 
     return result
 

@@ -187,6 +187,7 @@ class PortfolioOut(BaseModel):
     symbol: str
     volume: int
     avg_price: float
+    last_price: float
 
     class Config:
         orm_mode = True
