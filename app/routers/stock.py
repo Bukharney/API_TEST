@@ -149,3 +149,12 @@ def get_my_transactions(
         transaction.side = order.side
 
     return transactions
+
+
+@router.get("/market_data/{symbol}")
+def func1(
+    symbol: str,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    return api.get_market_data(symbol)
