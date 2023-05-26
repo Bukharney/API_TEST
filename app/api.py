@@ -213,8 +213,8 @@ def get_market_data(symbol: str):
 
     data4 = mkt_data.get_candlestick(
         symbol=symbol,
-        interval="1d",
-        limit=50,
+        interval="1m",
+        limit=270,
         normalized=True,
     )
 
