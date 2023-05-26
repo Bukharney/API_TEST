@@ -58,6 +58,7 @@ def get_price_info(symbol: str):
 
     sub = realtime.subscribe_price_info(symbol, on_message=my_message)
     sub.start()
+    time.sleep(1)
     return data
 
 
@@ -118,7 +119,7 @@ def get_bid_offer(symbol: str):
 
     sub = realtime.subscribe_bid_offer(symbol, on_message=my_message)
     sub.start()
-
+    time.sleep(1)
     return data
 
 
