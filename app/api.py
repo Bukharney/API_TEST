@@ -1,3 +1,4 @@
+import datetime
 import time
 from settrade_v2 import Investor
 
@@ -213,8 +214,8 @@ def get_market_data(symbol: str):
 
     data4 = mkt_data.get_candlestick(
         symbol=symbol,
-        interval="1m",
-        limit=50,
+        interval="1d",
+        limit=60,
         normalized=True,
     )
 
