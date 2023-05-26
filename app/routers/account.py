@@ -52,7 +52,11 @@ def get_account(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
+    broker = (
+        db.query(models.Broker).filter(models.Broker.id == account.broker_id).first()
+    )
 
+    account.broker_name = broker.name
     return account
 
 

@@ -5,14 +5,17 @@ from typing import Optional
 
 class UserOut(BaseModel):
     id: int
+    name: str
+    phone: str
     email: EmailStr
-    created_at: datetime
 
     class Config:
         orm_mode = True
 
 
 class UserCreate(BaseModel):
+    name: str
+    phone: str
     email: EmailStr
     password: str
 
@@ -45,6 +48,7 @@ class AccountCreate(BaseModel):
 
 class AccountOut(Account):
     broker_id: int
+    broker_name: str
     cash_balance: int
     line_available: int
     credit_limit: int
@@ -107,6 +111,8 @@ class BankTransactionCreate(BaseModel):
 
 class BankTransactionOut(BaseModel):
     id: int
+    type: str
+    amount: int
     timestamp: datetime
 
     class Config:
@@ -181,6 +187,15 @@ class PortfolioOut(BaseModel):
     symbol: str
     volume: int
     avg_price: float
+
+    class Config:
+        orm_mode = True
+
+
+class LoginOut(BaseModel):
+    login: datetime
+    device: str
+    ip: str
 
     class Config:
         orm_mode = True
