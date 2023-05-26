@@ -4,8 +4,8 @@ from settrade_v2 import Investor
 
 def login():
     investor = Investor(
-        app_id="NT8ff5aBQMXwpzTe",
-        app_secret="SVJ8Mz4ZnZJqvrMEHJH8t41nZp7/UlSqqwcksc04eq8=",
+        app_id="mh6I0FhNzB3Lx6Nf",
+        app_secret="AIigoP9qSNe2vIyoX83iNWp3rLAfcxzDjYUSbNi4uwUt",
         broker_id="SANDBOX",
         app_code="SANDBOX",
         is_auto_queue=False,
