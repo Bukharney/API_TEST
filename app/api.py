@@ -2,19 +2,16 @@ import time
 from settrade_v2 import Investor
 
 
-def login():
-    investor = Investor(
-        app_id="mh6I0FhNzB3Lx6Nf",
-        app_secret="AIigoP9qSNe2vIyoX83iNWp3rLAfcxzDjYUSbNi4uwUt",
-        broker_id="SANDBOX",
-        app_code="SANDBOX",
-        is_auto_queue=False,
-    )
-    return investor
+investor = Investor(
+    app_id="mh6I0FhNzB3Lx6Nf",
+    app_secret="AIigoP9qSNe2vIyoX83iNWp3rLAfcxzDjYUSbNi4uwUt",
+    broker_id="SANDBOX",
+    app_code="SANDBOX",
+    is_auto_queue=False,
+)
 
 
 def get_quote_symbol(symbol: str):
-    investor = login()
     if not investor:
         return "Error"
     mkt_data = investor.MarketData()
@@ -23,7 +20,6 @@ def get_quote_symbol(symbol: str):
 
 
 def get_candlestick(symbol: str, interval: str, limit: int):
-    investor = login()
     mkt_data = investor.MarketData()
     res = mkt_data.get_candlestick(
         symbol=symbol,
@@ -34,7 +30,6 @@ def get_candlestick(symbol: str, interval: str, limit: int):
 
 
 def get_price_info(symbol: str):
-    investor = login()
     realtime = investor.RealtimeDataConnection()
     data = {}
 
@@ -56,13 +51,10 @@ def get_price_info(symbol: str):
 
     sub = realtime.subscribe_price_info(symbol, on_message=my_message)
     sub.start()
-    while not data:
-        pass
-    return data
+    time.sleep(1)
 
 
 def get_bid_offer(symbol: str):
-    investor = login()
     realtime = investor.RealtimeDataConnection()
     data = {}
 
@@ -118,6 +110,6 @@ def get_bid_offer(symbol: str):
 
     sub = realtime.subscribe_bid_offer(symbol, on_message=my_message)
     sub.start()
-    while not data:
-        pass
+    time.sleep(1)
+
     return data
