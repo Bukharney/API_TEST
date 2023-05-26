@@ -120,3 +120,22 @@ def get_stock_market_bid_offer(
         )
 
     return res
+
+
+@router.get("/transactions/{account_id}")
+def get_my_transactions(
+    account_id: int,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    transactions = (
+        db.query(models.Transactions)
+        .join(
+            models.Orders,
+            onclause=models.Transactions.order_id == models.Orders.id,
+        )
+        .filter(models.Orders.account_id == account_id)
+        .all()
+    )
+
+    return transactions
