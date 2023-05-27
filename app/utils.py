@@ -60,8 +60,8 @@ def transactions(db):
                                 .filter(
                                     models.Portfolio.account_id == buy_order.account_id,
                                     models.Portfolio.symbol == buy_order.symbol,
-                                    models.Portfolio.price == buy_order.price,
                                 )
+                                .order_by(models.Portfolio.created_at)
                                 .first()
                             )
                             seller_portfolio = (
@@ -70,8 +70,8 @@ def transactions(db):
                                     models.Portfolio.account_id
                                     == sell_order.account_id,
                                     models.Portfolio.symbol == sell_order.symbol,
-                                    models.Portfolio.price == sell_order.price,
                                 )
+                                .order_by(models.Portfolio.created_at)
                                 .first()
                             )
                             if buy_order.balance > sell_order.balance:
@@ -282,6 +282,7 @@ def get_portfolio(db, account_id):
 
     symbol_volume = {}
     symbol_total_price = {}
+    value = 0
 
     for item in port:
         volume = item.volume
@@ -292,10 +293,8 @@ def get_portfolio(db, account_id):
             symbol_volume[symbol] = 0
             symbol_total_price[symbol] = 0
 
-        if volume > 0:
-            symbol_volume[symbol] += volume
-            symbol_total_price[symbol] += volume * price
-
+        symbol_volume[symbol] += volume
+        symbol_total_price[symbol] += volume * price
     result = []
     print("Net Volume and Average Price for Each Symbol:")
     for symbol in symbol_volume:

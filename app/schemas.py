@@ -48,7 +48,6 @@ class AccountCreate(BaseModel):
 
 class AccountOut(Account):
     broker_id: int
-    broker_name: str
     cash_balance: int
     line_available: int
     credit_limit: int

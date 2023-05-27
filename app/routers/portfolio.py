@@ -25,10 +25,12 @@ def get_portfolio(
         .filter(models.Accounts.user_id == current_user.id)
         .first()
     )
+
     if not account:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
+
     result = utils.get_portfolio(db=db, account_id=account_id)
     if not result:
         raise HTTPException(

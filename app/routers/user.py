@@ -71,7 +71,7 @@ def update_user_login_info(
     return login
 
 
-@router.get("/my", response_model=schemas.UserOut)
+@router.get("/my", response_model=List[schemas.UserOut])
 def get_user(
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
@@ -81,4 +81,4 @@ def get_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
         )
-    return user
+    return [user]
