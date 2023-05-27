@@ -1,7 +1,7 @@
 from fastapi import Depends, status, HTTPException, APIRouter
 from sqlalchemy import text
 from app import oauth2
-from .. import models, schemas
+from .. import models
 from ..database import get_db
 from sqlalchemy.orm import Session
 from newsdataapi import NewsDataApiClient

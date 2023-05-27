@@ -72,10 +72,21 @@ def create_bank_transaction(
 
 
 @router.get(
+    "/",
+)
+def get_all_bank_transactions(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    bank_transactions = db.query(models.Bank_transactions).all()
+    return bank_transactions
+
+
+@router.get(
     "/my",
     response_model=List[schemas.BankTransactionOut],
 )
-def get_all_bank_transactions(
+def get_bank_transactions(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):

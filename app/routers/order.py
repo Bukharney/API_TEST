@@ -83,6 +83,7 @@ def create_order(
 
 @router.get(
     "/all",
+    status_code=status.HTTP_200_OK,
 )
 def get_orders(
     current_user: int = Depends(oauth2.get_current_user),
@@ -100,6 +101,7 @@ def get_orders(
 @router.get(
     "/{account_id}",
     response_model=List[schemas.OrderOut],
+    status_code=status.HTTP_200_OK,
 )
 def get_orders(
     account_id: int,
@@ -120,6 +122,7 @@ def get_orders(
 @router.get(
     "/one/{id}",
     response_model=schemas.OrderOut,
+    status_code=status.HTTP_200_OK,
 )
 def get_order(
     id: int,
@@ -137,6 +140,7 @@ def get_order(
 
 @router.get(
     "/cancel/{id}",
+    status_code=status.HTTP_200_OK,
 )
 def get_orders(
     id: int,
@@ -173,6 +177,7 @@ def get_orders(
 
 @router.get(
     "/endofday",
+    status_code=status.HTTP_200_OK,
 )
 def get_orders(
     current_user: int = Depends(oauth2.get_current_user),

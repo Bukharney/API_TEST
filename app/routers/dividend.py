@@ -7,6 +7,21 @@ from sqlalchemy.orm import Session
 router = APIRouter(prefix="/dividend", tags=["dividend"])
 
 
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+)
+def get_all_dividend(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    dividend = (
+        db.query(models.Dividend).order_by(models.Dividend.timestamp.desc()).all()
+    )
+
+    return dividend
+
+
 @router.post(
     "/",
     response_model=schemas.DividendOut,

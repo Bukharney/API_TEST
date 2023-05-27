@@ -11,6 +11,23 @@ router = APIRouter(prefix="/noti", tags=["Notification"])
 
 
 @router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+)
+def get_all_notification(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    noti = (
+        db.query(models.Notifications)
+        .order_by(models.Notifications.created_at.desc())
+        .all()
+    )
+
+    return noti
+
+
+@router.get(
     "/{account_id}",
     status_code=status.HTTP_200_OK,
     response_model=List[schemas.NotiOut],

@@ -82,3 +82,12 @@ def get_user(
             status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
         )
     return [user]
+
+
+@router.get("/login_info/all")
+def get_all_login_info(
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    login = db.query(models.Login_Logout).order_by(models.Login_Logout.id.desc()).all()
+    return login
