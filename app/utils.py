@@ -282,7 +282,6 @@ def get_portfolio(db, account_id):
 
     symbol_volume = {}
     symbol_total_price = {}
-    value = 0
 
     for item in port:
         volume = item.volume
@@ -295,6 +294,7 @@ def get_portfolio(db, account_id):
 
         symbol_volume[symbol] += volume
         symbol_total_price[symbol] += volume * price
+
     result = []
     print("Net Volume and Average Price for Each Symbol:")
     for symbol in symbol_volume:

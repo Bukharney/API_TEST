@@ -24,7 +24,6 @@ def get_quote_symbol(symbol: str):
 
 
 def get_candlestick(symbol: str, interval: str, limit: int):
-    time.sleep(1)
     investor = login()
     mkt_data = investor.MarketData()
     res = mkt_data.get_candlestick(
@@ -36,7 +35,6 @@ def get_candlestick(symbol: str, interval: str, limit: int):
 
 
 def get_price_info(symbol: str):
-    time.sleep(1)
     investor = login()
     realtime = investor.RealtimeDataConnection()
     data1 = {}
