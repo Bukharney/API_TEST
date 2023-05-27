@@ -126,14 +126,23 @@ class OrderCreate(BaseModel):
     price: float
     side: str
     validity: str
+    pin: int
 
     class Config:
         orm_mode = True
 
 
-class OrderOut(OrderCreate):
+class OrderOut(BaseModel):
     id: int
+    account_id: int
+    symbol: str
+    type: str
+    volume: int
+    price: float
+    side: str
+    validity: str
     time: datetime
+    status: str
 
     class Config:
         orm_mode = True

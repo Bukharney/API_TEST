@@ -19,7 +19,7 @@ def create_bank_transaction(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role == "user":
+    if current_user.role != "admin" and current_user.role != "broker":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are not authorized to create bank transactions",

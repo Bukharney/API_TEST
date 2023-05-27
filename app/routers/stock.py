@@ -15,6 +15,13 @@ def create_stock(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to create a stock",
+        )
+
+    stock.symbol = stock.symbol.upper()
     verify_account = (
         db.query(models.Stock).filter(models.Stock.symbol == stock.symbol).first()
     )
@@ -28,7 +35,7 @@ def create_stock(
     db.add(new_stock)
     db.commit()
     db.refresh(new_stock)
-    get_quote = utils.get_quote(db)
+    update_turnover = utils.get_quote(db)
     return new_stock
 
 

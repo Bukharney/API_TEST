@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
-from app import oauth2
+from app import oauth2, utils
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
@@ -26,6 +26,7 @@ def create_account(
         )
 
     new_account = models.Accounts(**account.dict(), user_id=current_user.id)
+    new_account.pin = utils.hash_password(str(new_account.pin))
     try:
         db.add(new_account)
         db.commit()
@@ -74,32 +75,31 @@ def get_all_accounts(
 
 
 @router.get(
-    "/verify_balance/{account_id}/{broker_id}",
+    "/verify_balance/{account_id}",
     status_code=status.HTTP_200_OK,
 )
 def get_portfolio(
     account_id: int,
-    broker_id: int,
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role == "user":
+    if current_user.role != "admin" and current_user.role != "broker":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are not authorized to perform this action",
         )
 
     account = db.query(models.Accounts).filter(models.Accounts.id == account_id).first()
-    broker_account = (
-        db.query(models.Accounts)
-        .filter(models.Accounts.user_id == current_user.id)
-        .first()
-    )
     if not account:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
 
+    broker_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.user_id == current_user.id)
+        .first()
+    )
     if not broker_account.broker_id == account.broker_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

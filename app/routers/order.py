@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
 from app import oauth2, utils
 from .. import models, schemas
@@ -31,11 +32,19 @@ def create_order(
             status_code=status.HTTP_404_NOT_FOUND, detail="Symbol not found"
         )
 
+    hash_password_pin = utils.hash_password(str(order.pin))
+    verify_pin = utils.verify(str(order.pin), account.pin)
+    if not verify_pin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
+    del order.pin
     new_order = models.Orders(**order.dict())
     new_order.matched = 0
     new_order.balance = order.volume
     new_order.status = "O"
     new_order.cancelled = 0
+
     cost = order.volume * order.price
 
     port = utils.get_portfolio(db=db, account_id=order.account_id)
@@ -73,7 +82,27 @@ def create_order(
 
 
 @router.get(
-    "/{id}",
+    "/{account_id}",
+    response_model=List[schemas.OrderOut],
+)
+def get_orders(
+    account_id: int,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    orders = (
+        db.query(models.Orders).filter(models.Orders.account_id == account_id).all()
+    )
+    if not orders:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+
+    return orders
+
+
+@router.get(
+    "/one/{id}",
     response_model=schemas.OrderOut,
 )
 def get_order(
