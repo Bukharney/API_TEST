@@ -50,6 +50,15 @@ def get_all_stocks(
     return stocks
 
 
+@router.get("/company_info/all")
+def stock_comp_info(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    info = db.query(models.Stock).all()
+    return info
+
+
 @router.get("/{symbol}", response_model=schemas.StockCreate)
 def get_stock(
     symbol: str,

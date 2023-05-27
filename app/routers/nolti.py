@@ -43,6 +43,7 @@ def get_notification(
         .filter(models.Accounts.user_id == current_user.id)
         .first()
     )
+
     if not account:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
