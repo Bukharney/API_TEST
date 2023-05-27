@@ -26,18 +26,13 @@ def create_broker(
 
 @router.get(
     "/",
-    response_model=schemas.BrokerOut,
+    status_code=status.HTTP_200_OK,
 )
 def get_all_brokers(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
     brokers = db.query(models.Broker).all()
-    if not brokers:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Broker not found"
-        )
-
     return brokers
 
 

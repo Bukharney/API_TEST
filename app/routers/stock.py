@@ -140,6 +140,16 @@ def get_stock_market_bid_offer(
     return res
 
 
+@router.get("/transactions/all")
+def get_all_transactions(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    transaction = db.query(models.Transactions).all()
+
+    return transaction
+
+
 @router.get("/transactions/{account_id}")
 def get_my_transactions(
     account_id: int,
@@ -167,16 +177,6 @@ def get_my_transactions(
         transaction.side = order.side
 
     return transactions
-
-
-@router.get("/transactions/all")
-def get_all_transactions(
-    current_user: int = Depends(oauth2.get_current_user),
-    db: Session = Depends(get_db),
-):
-    transaction = db.query(models.Transactions).all()
-
-    return transaction
 
 
 @router.get("/market_data/{symbol}")

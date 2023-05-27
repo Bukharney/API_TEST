@@ -10,6 +10,19 @@ router = APIRouter(prefix="/portfolio", tags=["Portfolio"])
 
 
 @router.get(
+    "/all",
+    status_code=status.HTTP_200_OK,
+)
+def get_all_portfolio(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    result = db.query(models.Portfolio).all()
+
+    return result
+
+
+@router.get(
     "/{account_id}",
     status_code=status.HTTP_200_OK,
     response_model=List[schemas.PortfolioOut],
@@ -47,19 +60,6 @@ def get_portfolio(
         symbol["low"] = price_info["low"]
         symbol["market_status"] = price_info["market_status"]
         print(symbol)
-
-    return result
-
-
-@router.get(
-    "/all",
-    status_code=status.HTTP_200_OK,
-)
-def get_all_portfolio(
-    current_user: int = Depends(oauth2.get_current_user),
-    db: Session = Depends(get_db),
-):
-    result = db.query(models.Portfolio).all()
 
     return result
 
