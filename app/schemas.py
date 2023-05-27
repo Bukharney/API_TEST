@@ -84,6 +84,16 @@ class StockOut(BaseModel):
         orm_mode = True
 
 
+class StockOutMarket(BaseModel):
+    symbol: str
+    close: float
+    open: float
+    change: float
+
+    class Config:
+        orm_mode = True
+
+
 class BrokerOut(BaseModel):
     name: str
 
@@ -149,8 +159,9 @@ class OrderOut(BaseModel):
 
 
 class StockSearch(BaseModel):
-    result: list[StockOut]
-    count: int
+    symbol: str
+    close: float
+    change: float
 
 
 class DividendCreate(BaseModel):

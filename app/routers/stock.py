@@ -39,12 +39,14 @@ def create_stock(
     return new_stock
 
 
-@router.get("/", response_model=List[schemas.StockOut])
+@router.get("/", response_model=List[schemas.StockOutMarket])
 def get_all_stocks(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
     stocks = db.query(models.Stock).all()
+    stocks_info = api.get_candlesticks(stocks, "1d", 1)
+    print(stocks_info)
     return stocks
 
 
@@ -63,7 +65,7 @@ def get_stock(
     return stock
 
 
-@router.get("/search/{symbol}", response_model=schemas.StockSearch)
+@router.get("/search/{symbol}", response_model=List[schemas.StockOutMarket])
 def get_stock_search(
     symbol: str,
     current_user: int = Depends(oauth2.get_current_user),
@@ -74,11 +76,11 @@ def get_stock_search(
         db.query(models.Stock).filter(models.Stock.symbol.like(f"%{symbol}%")).all()
     )
     if not result:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Stock not found"
-        )
+        return []
 
-    return {"result": result, "count": len(result)}
+    details = api.get_candlesticks(result, "1d", 1)
+
+    return result
 
 
 @router.get("/market/{symbol}/{interval}/{limit}")

@@ -34,6 +34,21 @@ def get_candlestick(symbol: str, interval: str, limit: int):
     return res
 
 
+def get_candlesticks(symbols, interval: str, limit: int):
+    investor = login()
+    mkt_data = investor.MarketData()
+    for symbol in symbols:
+        res = mkt_data.get_candlestick(
+            symbol=symbol.symbol,
+            interval=interval,
+            limit=limit,
+        )
+        symbol.close = res["close"][0]
+        symbol.open = res["open"][0]
+        symbol.change = res["close"][0] - res["open"][0]
+    return res
+
+
 def get_price_info(symbol: str):
     investor = login()
     realtime = investor.RealtimeDataConnection()
