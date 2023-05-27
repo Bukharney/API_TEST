@@ -71,13 +71,12 @@ def update_user_login_info(
     return login
 
 
-@router.get("/{id}", response_model=schemas.UserOut)
+@router.get("/my", response_model=schemas.UserOut)
 def get_user(
-    id: int,
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):
-    user = db.query(models.User).filter(models.User.id == id).first()
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
