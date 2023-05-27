@@ -189,6 +189,11 @@ class PortfolioOut(BaseModel):
     avg_price: float
     last_price: float
     change: float
+    open: float
+    close: float
+    high: float
+    low: float
+    market_status: str
 
     class Config:
         orm_mode = True

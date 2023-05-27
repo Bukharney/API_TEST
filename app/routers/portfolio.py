@@ -39,6 +39,12 @@ def get_portfolio(
         price_info = api.get_price_info(symbol["symbol"])
         symbol["last_price"] = price_info["last"]
         symbol["change"] = price_info["change"]
+        symbol["close"] = price_info["close"]
+        symbol["open"] = price_info["open"]
+        symbol["high"] = price_info["high"]
+        symbol["low"] = price_info["low"]
+        symbol["market_status"] = price_info["market_status"]
+        print(symbol)
 
     return result
 

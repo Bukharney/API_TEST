@@ -39,10 +39,10 @@ def get_price_info(symbol: str):
     time.sleep(1)
     investor = login()
     realtime = investor.RealtimeDataConnection()
-    data = {}
+    data1 = {}
 
     def my_message(result):
-        nonlocal data
+        nonlocal data1
         result = result.get("data", {})
         keys = [
             "symbol",
@@ -55,12 +55,27 @@ def get_price_info(symbol: str):
             "total_value",
             "market_status",
         ]
-        data = {key: result.get(key) for key in keys}
+        data1 = {key: result.get(key) for key in keys}
 
     sub = realtime.subscribe_price_info(symbol, on_message=my_message)
     sub.start()
+
+    mkt_data = investor.MarketData()
+    data2 = mkt_data.get_candlestick(
+        symbol=symbol,
+        interval="1d",
+        limit=1,
+        normalized=True,
+    )
+
+    data1["high"] = data2["high"][0]
+    data1["low"] = data2["low"][0]
+    data1["open"] = data2["open"][0]
+    data1["close"] = data2["close"][0]
+
     time.sleep(1)
-    return data
+
+    return data1
 
 
 def get_bid_offer(symbol: str):
