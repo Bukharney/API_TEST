@@ -28,6 +28,22 @@ def get_turnover(
     return turnover
 
 
+@router.get(
+    "/all",
+)
+def get_all_turnovers(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    turnovers = db.query(models.Turnover).all()
+    if not turnovers:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Turnover not found"
+        )
+
+    return turnovers
+
+
 @router.get("/api")
 def get_quote(
     current_user: int = Depends(oauth2.get_current_user),

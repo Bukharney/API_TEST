@@ -51,6 +51,19 @@ def get_portfolio(
     return result
 
 
+@router.get(
+    "/all",
+    status_code=status.HTTP_200_OK,
+)
+def get_all_portfolio(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    result = db.query(models.Portfolio).all()
+
+    return result
+
+
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,

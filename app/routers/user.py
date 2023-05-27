@@ -27,7 +27,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[schemas.UserOut])
-def get_user(
+def get_all_user(
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):

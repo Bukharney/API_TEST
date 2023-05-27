@@ -82,6 +82,22 @@ def create_order(
 
 
 @router.get(
+    "/all",
+)
+def get_orders(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    orders = db.query(models.Orders).all()
+    if not orders:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+
+    return orders
+
+
+@router.get(
     "/{account_id}",
     response_model=List[schemas.OrderOut],
 )

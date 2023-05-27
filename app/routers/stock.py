@@ -160,6 +160,16 @@ def get_my_transactions(
     return transactions
 
 
+@router.get("/transactions/all")
+def get_all_transactions(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    transaction = db.query(models.Transactions).all()
+
+    return transaction
+
+
 @router.get("/market_data/{symbol}")
 def func1(
     symbol: str,
