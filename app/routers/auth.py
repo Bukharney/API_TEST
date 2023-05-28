@@ -2,6 +2,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from random import randint
 
 from .. import database, schemas, models, utils, oauth2
 
@@ -31,6 +32,7 @@ def login(
 
     access_token = oauth2.create_access_token(data={"user_id": user.id})
     login = models.Login_Logout(
+        id=randint(1, 1000000000),
         user_id=user.id,
         logout=utils.get_current_time()
         + timedelta(minutes=oauth2.ACCESS_TOKEN_EXPIRE_MINUTES),
@@ -41,6 +43,7 @@ def login(
     db.add(login)
     db.commit()
     db.refresh(login)
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 

@@ -122,3 +122,39 @@ def get_portfolio(
     return {
         "result": "success",
     }
+
+
+@router.put(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+)
+def update_account(
+    id: int,
+    account: schemas.AccountCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.role != "broker":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to perform this action",
+        )
+
+    account_db = db.query(models.Accounts).filter(models.Accounts.id == id).first()
+    if not account_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+
+    account_db.broker_id = account.broker_id
+    account_db.user_id = account.user_id
+    account_db.line_available = account.line_available
+    account_db.cash_balance = account.cash_balance
+    account_db.pin = utils.hash_password(str(account.pin))
+
+    db.commit()
+    db.refresh(account_db)
+
+    return {
+        "result": "success",
+    }
