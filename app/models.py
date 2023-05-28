@@ -87,7 +87,7 @@ class Accounts(Base):
     cash_balance = Column(Float, nullable=False)
     line_available = Column(Float, nullable=False)
     credit_limit = Column(Float, nullable=False)
-    pin = Column(String, nullable=False)
+    pin = Column(Integer, nullable=False)
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
