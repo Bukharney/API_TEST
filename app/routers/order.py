@@ -32,9 +32,7 @@ def create_order(
             status_code=status.HTTP_404_NOT_FOUND, detail="Symbol not found"
         )
 
-    hash_password_pin = utils.hash_password(str(order.pin))
-    verify_pin = utils.verify(str(order.pin), account.pin)
-    if not verify_pin:
+    if order.pin != account.pin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
@@ -172,9 +170,7 @@ def delete_orders(
             detail="You are not authorized to cancal this order",
         )
 
-    hash_password_pin = utils.hash_password(str(order.pin))
-    verify_pin = utils.verify(str(order.pin), account.pin)
-    if not verify_pin:
+    if account.pin != order.pin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )

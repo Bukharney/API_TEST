@@ -26,7 +26,6 @@ def create_account(
         )
 
     new_account = models.Accounts(**account.dict())
-    new_account.pin = utils.hash_password(str(new_account.pin))
     try:
         db.add(new_account)
         db.commit()
@@ -146,11 +145,15 @@ def update_account(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
 
+    for key, value in account.dict().items():
+        if value:
+            setattr(account_db, key, value)
+
     account_db.broker_id = account.broker_id
     account_db.user_id = account.user_id
     account_db.line_available = account.line_available
     account_db.cash_balance = account.cash_balance
-    account_db.pin = utils.hash_password(str(account.pin))
+    account_db.pin = account.pin
 
     db.commit()
     db.refresh(account_db)

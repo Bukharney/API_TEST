@@ -15,6 +15,10 @@ def verify(password: str, hashed_password: str):
     return pwd_context.verify(password, hashed_password)
 
 
+def de_hash_password(password: str):
+    return pwd_context.disable(password)
+
+
 def get_current_time():
     return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
