@@ -150,3 +150,21 @@ def update_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.delete(
+    "/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_user(
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
+        )
+    db.delete(user)
+    db.commit()
+    return {"detail": "User deleted successfully"}
