@@ -1,5 +1,6 @@
+import datetime
 from fastapi import Depends, status, HTTPException, APIRouter
-from app import oauth2
+from app import oauth2, utils
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
@@ -134,3 +135,86 @@ def get_bank_transaction(
         )
 
     return bank_transaction
+
+
+@router.put(
+    "/{id}",
+    response_model=schemas.BankTransactionOut,
+)
+def update_bank_transaction(
+    id: int,
+    bank_transaction: schemas.BankTransactionCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.role != "broker":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to update bank transactions",
+        )
+
+    db_bank_transaction = (
+        db.query(models.Bank_transactions)
+        .filter(models.Bank_transactions.id == id)
+        .first()
+    )
+    if not db_bank_transaction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bank Transaction not found"
+        )
+
+    user_account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.id == db_bank_transaction.account_id)
+        .first()
+    )
+
+    if not user_account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User does not have account"
+        )
+
+    bank_transaction.type = bank_transaction.type.lower()
+    db_bank_transaction.type = db_bank_transaction.type.lower()
+
+    if bank_transaction.type == "deposit":
+        if db_bank_transaction.type == "withdraw":
+            user_account.cash_balance += db_bank_transaction.amount
+            user_account.line_available += db_bank_transaction.amount
+            user_account.cash_balance += bank_transaction.amount
+            user_account.line_available += bank_transaction.amount
+        elif db_bank_transaction.type == "deposit":
+            user_account.cash_balance -= db_bank_transaction.amount
+            user_account.line_available -= db_bank_transaction.amount
+            user_account.cash_balance += bank_transaction.amount
+            user_account.line_available += bank_transaction.amount
+
+        db_bank_transaction.amount = bank_transaction.amount
+        db_bank_transaction.type = bank_transaction.type
+        db_bank_transaction.timestamp = utils.get_current_time()
+        db_bank_transaction.account_id = bank_transaction.account_id
+    elif bank_transaction.type == "withdraw":
+        if db_bank_transaction.type == "withdraw":
+            user_account.cash_balance += db_bank_transaction.amount
+            user_account.line_available += db_bank_transaction.amount
+            user_account.cash_balance -= bank_transaction.amount
+            user_account.line_available -= bank_transaction.amount
+        elif db_bank_transaction.type == "deposit":
+            user_account.cash_balance -= db_bank_transaction.amount
+            user_account.line_available -= db_bank_transaction.amount
+            user_account.cash_balance -= bank_transaction.amount
+            user_account.line_available -= bank_transaction.amount
+
+        db_bank_transaction.amount = bank_transaction.amount
+        db_bank_transaction.type = bank_transaction.type
+        db_bank_transaction.timestamp = utils.get_current_time()
+        db_bank_transaction.account_id = bank_transaction.account_id
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bank transaction type must be deposit or withdraw",
+        )
+
+    db.commit()
+    db.refresh(db_bank_transaction)
+    return db_bank_transaction
