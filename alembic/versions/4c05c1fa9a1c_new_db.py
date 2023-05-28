@@ -1,8 +1,8 @@
-"""25/5/66
+"""new_db
 
-Revision ID: 5addbb001907
+Revision ID: 4c05c1fa9a1c
 Revises: 
-Create Date: 2023-05-25 01:48:44.163602
+Create Date: 2023-05-29 04:16:50.624097
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "5addbb001907"
+revision = "4c05c1fa9a1c"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -51,8 +51,8 @@ def upgrade() -> None:
         sa.Column("telephone", sa.String(), nullable=False),
         sa.Column("website", sa.String(), nullable=False),
         sa.Column("registered_capital", sa.BigInteger(), nullable=False),
-        sa.Column("established_date", sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.Column("market_entry_date", sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("established_date", sa.Date(), nullable=False),
+        sa.Column("market_entry_date", sa.Date(), nullable=False),
         sa.Column("ipo_price", sa.Float(), nullable=False),
         sa.Column("free_float", sa.Integer(), nullable=False),
         sa.Column("major_shareholders", sa.Integer(), nullable=False),
@@ -67,6 +67,9 @@ def upgrade() -> None:
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("role", sa.String(), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("phone", sa.String(), nullable=False),
         sa.Column("email", sa.String(), nullable=False),
         sa.Column("password", sa.String(), nullable=False),
         sa.Column(
@@ -115,15 +118,16 @@ def upgrade() -> None:
         ),
         sa.Column("logout", sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column("device", sa.String(), nullable=True),
+        sa.Column("ip", sa.String(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", "login"),
     )
     op.create_table(
         "turnover",
-        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("symbol", sa.String(), nullable=False),
         sa.Column("asset", sa.Integer(), nullable=True),
         sa.Column("dept", sa.Integer(), nullable=True),
@@ -132,7 +136,7 @@ def upgrade() -> None:
         sa.Column("dividend_per_unit", sa.Integer(), nullable=True),
         sa.Column("net_profit", sa.Integer(), nullable=True),
         sa.Column(
-            "turnover_time",
+            "timestamp",
             sa.TIMESTAMP(timezone=True),
             server_default=sa.text("now()"),
             nullable=False,
@@ -141,17 +145,17 @@ def upgrade() -> None:
             ["symbol"],
             ["stocks.symbol"],
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", "timestamp"),
     )
     op.create_table(
         "bank_tsc",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("account_id", sa.Integer(), nullable=True),
-        sa.Column("transaction_type", sa.String(), nullable=False),
-        sa.Column("transaction_status", sa.String(), nullable=False),
-        sa.Column("transaction_amount", sa.Numeric(), nullable=False),
+        sa.Column("account_number", sa.String(), nullable=False),
+        sa.Column("type", sa.String(), nullable=False),
+        sa.Column("amount", sa.Numeric(), nullable=False),
         sa.Column(
-            "transaction_time",
+            "timestamp",
             sa.TIMESTAMP(timezone=True),
             server_default=sa.text("now()"),
             nullable=False,
@@ -169,7 +173,7 @@ def upgrade() -> None:
         sa.Column("account_id", sa.Integer(), nullable=True),
         sa.Column("value", sa.Float(), nullable=False),
         sa.Column(
-            "transaction_time",
+            "timestamp",
             sa.TIMESTAMP(timezone=True),
             server_default=sa.text("now()"),
             nullable=False,
@@ -260,10 +264,10 @@ def upgrade() -> None:
         "transactions",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("order_id", sa.Integer(), nullable=True),
-        sa.Column("transaction_price", sa.Float(), nullable=False),
-        sa.Column("transaction_volume", sa.Integer(), nullable=False),
+        sa.Column("price", sa.Float(), nullable=False),
+        sa.Column("volume", sa.Integer(), nullable=False),
         sa.Column(
-            "transaction_time",
+            "timestamp",
             sa.TIMESTAMP(timezone=True),
             server_default=sa.text("now()"),
             nullable=False,

@@ -91,6 +91,9 @@ class Accounts(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
+    fk_user = relationship("User", backref="accounts", cascade="all, delete")
+    fk_broker = relationship("Broker", backref="accounts", cascade="all, delete")
+
 
 class Bank_transactions(Base):
     __tablename__ = "bank_tsc"
@@ -101,6 +104,10 @@ class Bank_transactions(Base):
     amount = Column(Numeric, nullable=False)
     timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
+
+    fk_account = relationship(
+        "Accounts", backref="bank_transactions", cascade="all, delete"
     )
 
 
@@ -122,6 +129,9 @@ class Orders(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
+    fk_account = relationship("Accounts", backref="orders", cascade="all, delete")
+    fk_stock = relationship("Stock", backref="orders", cascade="all, delete")
+
 
 class Transactions(Base):
     __tablename__ = "transactions"
@@ -132,6 +142,8 @@ class Transactions(Base):
     timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+    fk_order = relationship("Orders", backref="transactions", cascade="all, delete")
 
 
 class Turnover(Base):
@@ -151,6 +163,8 @@ class Turnover(Base):
         server_default=text("now()"),
     )
 
+    fk_stock = relationship("Stock", backref="turnover", cascade="all, delete")
+
 
 class Dividend(Base):
     __tablename__ = "dividend"
@@ -161,6 +175,9 @@ class Dividend(Base):
     timestamp = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+    fk_stock = relationship("Stock", backref="dividend", cascade="all, delete")
+    fk_account = relationship("Accounts", backref="dividend", cascade="all, delete")
 
 
 class News(Base):
@@ -183,6 +200,9 @@ class Portfolio(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
+    fk_account = relationship("Accounts", backref="portfolio", cascade="all, delete")
+    fk_stock = relationship("Stock", backref="portfolio", cascade="all, delete")
+
 
 class Notifications(Base):
     __tablename__ = "notification"
@@ -194,3 +214,5 @@ class Notifications(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+    fk_account = relationship("Accounts", backref="notification", cascade="all, delete")

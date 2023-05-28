@@ -73,20 +73,6 @@ def get_user(
     return user
 
 
-@router.get("/{id}", response_model=schemas.UserOut)
-def get_user_by_id(
-    id: int,
-    db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user),
-):
-    user = db.query(models.User).filter(models.User.id == id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
-        )
-    return user
-
-
 @router.get("/token", response_model=schemas.UserOut)
 def get_user(
     current_user: int = Depends(oauth2.get_current_user),
@@ -163,14 +149,26 @@ def delete_user(
     user = db.query(models.User).filter(models.User.id == current_user.id).first()
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
-        )
-    try:
-        db.delete(user)
-        db.commit()
-    except:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User with given id not found for deletion",
         )
 
+    db.delete(user)
+    db.commit()
+
     return {"detail": "User deleted successfully"}
+
+
+@router.get("/{id}", response_model=schemas.UserOut)
+def get_user_by_id(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User with given id not found",
+        )
+    return user
