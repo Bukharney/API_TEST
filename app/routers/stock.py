@@ -253,3 +253,33 @@ def delete_stock(
     db.commit()
 
     return {"message": "Stock deleted successfully"}
+
+
+@router.post("/transactions")
+def create_transaction(
+    transaction: schemas.TransactionCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.role != "broker":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to create a transaction",
+        )
+
+    order = db.query(models.Orders).filter(models.Orders.id == transaction.order_id)
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+
+    new_transaction = models.Transactions(
+        order_id=transaction.order_id,
+        price=transaction.price,
+        volume=transaction.volume,
+    )
+    db.add(new_transaction)
+    db.commit()
+    db.refresh(new_transaction)
+
+    return transaction

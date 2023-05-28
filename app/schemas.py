@@ -236,3 +236,12 @@ class LoginOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class TransactionCreate(BaseModel):
+    order_id: int
+    price: float
+    volume: int
+
+    class Config:
+        orm_mode = True
