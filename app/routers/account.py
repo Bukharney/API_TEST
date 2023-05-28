@@ -25,7 +25,7 @@ def create_account(
             status_code=status.HTTP_404_NOT_FOUND, detail="Given broker not found"
         )
 
-    new_account = models.Accounts(**account.dict(), user_id=current_user.id)
+    new_account = models.Accounts(**account.dict())
     new_account.pin = utils.hash_password(str(new_account.pin))
     try:
         db.add(new_account)

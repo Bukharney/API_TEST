@@ -39,6 +39,7 @@ class Account(BaseModel):
 
 
 class AccountCreate(BaseModel):
+    user_id: int
     broker_id: int
     cash_balance: int
     line_available: int
