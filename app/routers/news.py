@@ -24,21 +24,8 @@ def get_news(
     return news
 
 
-@router.get("/reset", status_code=status.HTTP_200_OK)
-def get_news(
-    db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user),
-):
-    sql = text(
-        "DROP TABLE IF EXISTS login_logout, stocks, brokers, users, accounts, bank_tsc, orders, transactions, news, turnover, dividend, alembic_version CASCADE;"
-    )
-    res = db.execute(sql)
-    db.commit()
-    return res
-
-
-@router.get("/api", status_code=status.HTTP_200_OK)
-def get_news(
+@router.get("/update", status_code=status.HTTP_200_OK)
+def update_news(
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):

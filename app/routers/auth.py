@@ -1,6 +1,7 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from random import randint
 
@@ -74,3 +75,16 @@ def logout(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="User already logged out",
     )
+
+
+@router.get("/reset", status_code=status.HTTP_200_OK)
+def get_news(
+    db: Session = Depends(database.get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    sql = text(
+        "DROP TABLE IF EXISTS login_logout, stocks, brokers, users, accounts, bank_tsc, orders, transactions, news, turnover, dividend, portfolio, alembic_version CASCADE;"
+    )
+    res = db.execute(sql)
+    db.commit()
+    return res
