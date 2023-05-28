@@ -37,6 +37,15 @@ def create_account(
     return new_account
 
 
+@router.get("/all")
+def get_all_accounts(
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    accounts = db.query(models.Accounts).all()
+    return accounts
+
+
 @router.get("/{id}", response_model=schemas.AccountOut)
 def get_account(
     id: int,
