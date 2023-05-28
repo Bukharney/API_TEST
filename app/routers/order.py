@@ -109,7 +109,10 @@ def get_orders(
     db: Session = Depends(get_db),
 ):
     orders = (
-        db.query(models.Orders).filter(models.Orders.account_id == account_id).all()
+        db.query(models.Orders)
+        .filter(models.Orders.account_id == account_id)
+        .order_by(models.Orders.time.desc())
+        .all()
     )
     if not orders:
         raise HTTPException(

@@ -4,6 +4,7 @@ from app import oauth2, api, utils
 from .. import models, schemas
 from ..database import get_db
 from sqlalchemy.orm import Session
+from operator import itemgetter
 
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
@@ -44,10 +45,11 @@ def get_all_stocks(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    stocks = db.query(models.Stock).all()
+    stocks = db.query(models.Stock).limit(10).all()
     stocks_info = api.get_candlesticks(stocks, "1d", 1)
-    print(stocks_info)
-    return stocks
+    sorted_stocks = sorted(stocks, key=lambda x: x.value, reverse=True)
+
+    return sorted_stocks
 
 
 @router.get("/company_info/all")

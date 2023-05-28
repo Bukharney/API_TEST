@@ -43,9 +43,11 @@ def get_candlesticks(symbols, interval: str, limit: int):
             interval=interval,
             limit=limit,
         )
-        symbol.close = res["close"][0]
-        symbol.open = res["open"][0]
-        symbol.change = res["close"][0] - res["open"][0]
+        symbol.close = format(res["close"][0], ".2f")
+        symbol.open = format(res["open"][0], ".2f")
+        symbol.change = format(res["close"][0] - res["open"][0], ".2f")
+        symbol.value = res["value"][0]
+
     return res
 
 

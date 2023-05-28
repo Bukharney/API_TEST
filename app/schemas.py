@@ -89,6 +89,7 @@ class StockOutMarket(BaseModel):
     close: float
     open: float
     change: float
+    value: float
 
     class Config:
         orm_mode = True
