@@ -64,7 +64,10 @@ class Login_Logout(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     login = Column(
-        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+        TIMESTAMP(timezone=True),
+        primary_key=True,
+        nullable=False,
+        server_default=text("now()"),
     )
     logout = Column(TIMESTAMP(timezone=True))
     device = Column(String)
@@ -128,7 +131,7 @@ class Transactions(Base):
 
 class Turnover(Base):
     __tablename__ = "turnover"
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     symbol = Column(String, ForeignKey("stocks.symbol"), nullable=False)
     asset = Column(Integer)
     dept = Column(Integer)
@@ -137,7 +140,10 @@ class Turnover(Base):
     dividend_per_unit = Column(Integer)
     net_profit = Column(Integer)
     timestamp = Column(
-        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+        TIMESTAMP(timezone=True),
+        primary_key=True,
+        nullable=False,
+        server_default=text("now()"),
     )
 
 
