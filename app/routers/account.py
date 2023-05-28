@@ -158,3 +158,32 @@ def update_account(
     return {
         "result": "success",
     }
+
+
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+)
+def delete_account(
+    id: int,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.role != "broker":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to perform this action",
+        )
+
+    account_db = db.query(models.Accounts).filter(models.Accounts.id == id).first()
+    if not account_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+
+    db.delete(account_db)
+    db.commit()
+
+    return {
+        "result": "success",
+    }
