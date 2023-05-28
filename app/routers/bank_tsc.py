@@ -193,6 +193,7 @@ def update_bank_transaction(
         db_bank_transaction.type = bank_transaction.type
         db_bank_transaction.timestamp = utils.get_current_time()
         db_bank_transaction.account_id = bank_transaction.account_id
+        db_bank_transaction.account_number = bank_transaction.account_number
     elif bank_transaction.type == "withdraw":
         if db_bank_transaction.type == "withdraw":
             user_account.cash_balance += db_bank_transaction.amount

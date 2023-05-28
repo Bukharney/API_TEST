@@ -97,6 +97,7 @@ class Bank_transactions(Base):
     __tablename__ = "bank_tsc"
     id = Column(Integer, primary_key=True, nullable=False)
     account_id = Column(Integer, ForeignKey("accounts.id"))
+    account_number = Column(String, nullable=False)
     type = Column(String, nullable=False)
     amount = Column(Numeric, nullable=False)
     timestamp = Column(

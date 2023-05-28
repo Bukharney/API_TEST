@@ -82,6 +82,11 @@ def get_news(
     db: Session = Depends(database.get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admin can reset database",
+        )
     sql = text(
         "DROP TABLE IF EXISTS login_logout, stocks, brokers, users, accounts, bank_tsc, orders, transactions, news, turnover, dividend, portfolio, alembic_version CASCADE;"
     )

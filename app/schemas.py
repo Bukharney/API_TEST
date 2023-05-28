@@ -113,6 +113,7 @@ class BrokerCreate(BaseModel):
 
 class BankTransactionCreate(BaseModel):
     account_id: int
+    account_number: str
     type: str
     amount: int
 
