@@ -46,7 +46,7 @@ def get_all_accounts(
     return accounts
 
 
-@router.get("/{id}", response_model=schemas.AccountOut)
+@router.get("/{id}")
 def get_account(
     id: int,
     current_user: int = Depends(oauth2.get_current_user),
