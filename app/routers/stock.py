@@ -210,7 +210,7 @@ def update_stock(
             status_code=status.HTTP_404_NOT_FOUND, detail="Stock not found"
         )
 
-    stock.symbol = update_stock.symbol
+    stock.symbol = update_stock.symbol.upper()
     stock.address = update_stock.address
     stock.company_name = update_stock.company_name
     stock.stock_industry = update_stock.stock_industry
@@ -228,3 +228,28 @@ def update_stock(
     db.refresh(stock)
 
     return stock
+
+
+@router.delete("/delete/{symbol}")
+def delete_stock(
+    symbol: str,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.role != "company":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to delete a stock",
+        )
+
+    symbol = symbol.upper()
+    stock = db.query(models.Stock).filter(models.Stock.symbol == symbol).first()
+    if not stock:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Stock not found"
+        )
+
+    db.delete(stock)
+    db.commit()
+
+    return {"message": "Stock deleted successfully"}
