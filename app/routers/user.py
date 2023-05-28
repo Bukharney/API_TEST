@@ -46,6 +46,27 @@ def get_user(
     return current_user
 
 
+@router.get("/{id}", response_model=schemas.UserOut)
+def get_all_user(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
+        )
+    return user
+
+
+@router.get("/token", response_model=schemas.UserOut)
+def get_user(
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    return current_user
+
+
 @router.get("/login_info", response_model=list[schemas.LoginOut])
 def update_user_login_info(
     db: Session = Depends(get_db),
