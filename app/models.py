@@ -44,7 +44,6 @@ class Stock(Base):
         String,
         primary_key=True,
         nullable=False,
-        onupdate="CASCADE",
     )
     company_name = Column(String, nullable=False)
     stock_industry = Column(String, nullable=False)

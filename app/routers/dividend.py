@@ -32,7 +32,7 @@ def create_dividend(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    if not current_user.role != "broker":
+    if not current_user.role != "broker" and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only brokers can create dividends",
@@ -91,3 +91,19 @@ def get_dividend(
     )
 
     return dividend
+
+
+@router.post(
+    "/add",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_dividend(
+    dividend: schemas.DividendCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    new_dividend = models.Dividend(**dividend.dict())
+    db.add(new_dividend)
+    db.commit()
+    db.refresh(new_dividend)
+    return new_dividend

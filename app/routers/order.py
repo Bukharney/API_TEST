@@ -216,10 +216,9 @@ def get_orders(
 
     order.cancelled = 1
     order.status = "C"
-    account = (
-        db.query(models.Accounts).filter(models.Accounts.id == order.account_id).first()
-    )
-    account.line_available += order.balance * order.price
+
+    if order.type == "Buy":
+        account.line_available += order.balance * order.price
 
     db.commit()
     db.refresh(order)
@@ -245,9 +244,71 @@ def get_orders(
             .filter(models.Accounts.id == order.account_id)
             .first()
         )
-        account.line_available += order.balance * order.price
+        if order.side == "Buy":
+            account.line_available += order.balance * order.price
 
     db.commit()
     return {
         "result": "End of day",
+    }
+
+
+@router.put(
+    "/update",
+    status_code=status.HTTP_200_OK,
+)
+def update_orders(
+    order: schemas.OrderUpdate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.broker != "manager":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to update this order",
+        )
+
+    db_order = db.query(models.Orders).filter(models.Orders.id == order.id).first()
+    if not db_order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+
+    account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.id == db_order.account_id)
+        .first()
+    )
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+
+    if db_order.status == "O":
+        if db_order.side == "BUY":
+            if order.side == "BUY":
+                account.line_available += db_order.balance * db_order.price
+                account.line_available -= order.balance * order.price
+            elif order.side == "SELL":
+                account.line_available += db_order.balance * db_order.price
+        elif db_order.side == "SELL":
+            account.line_available -= order.balance * order.price
+
+    db_order.price = order.price
+    db_order.volume = order.volume
+    db_order.balance = order.balance
+    db_order.status = order.status
+    db_order.side = order.side
+    db_order.type = order.type
+    db_order.matched = order.matched
+    db_order.cancelled = order.cancelled
+    db_order.account_id = order.account_id
+    db_order.symbol = order.symbol
+    db_order.balance = order.balance
+    order.validity = order.validity
+
+    db.commit()
+    db.refresh(db_order)
+    return {
+        "result": "Order updated successfully",
     }

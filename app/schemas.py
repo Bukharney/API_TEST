@@ -145,6 +145,17 @@ class OrderCreate(BaseModel):
         orm_mode = True
 
 
+class OrderUpdate(OrderCreate):
+    id: int
+    status: str
+    balance: int
+    matched: int
+    cancelled: int
+
+    class Config:
+        orm_mode = True
+
+
 class OrderCancel(BaseModel):
     id: int
     pin: int
