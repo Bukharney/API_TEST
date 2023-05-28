@@ -141,6 +141,53 @@ def get_order(
     return order
 
 
+@router.post(
+    "/cancel",
+    status_code=status.HTTP_200_OK,
+)
+def delete_orders(
+    order: schemas.OrderCancel,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    order = db.query(models.Orders).filter(models.Orders.id == order.id).first()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+
+    account = (
+        db.query(models.Accounts)
+        .filter(models.Accounts.user_id == current_user.id)
+        .first()
+    )
+    if account.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to cancal this order",
+        )
+
+    hash_password_pin = utils.hash_password(str(order.pin))
+    verify_pin = utils.verify(str(order.pin), account.pin)
+    if not verify_pin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
+
+    order.cancelled = 1
+    order.status = "C"
+    account = (
+        db.query(models.Accounts).filter(models.Accounts.id == order.account_id).first()
+    )
+    account.line_available += order.balance * order.price
+
+    db.commit()
+    db.refresh(order)
+    return {
+        "result": "Order cancelled successfully",
+    }
+
+
 @router.get(
     "/cancel/{id}",
     status_code=status.HTTP_200_OK,

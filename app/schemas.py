@@ -143,6 +143,14 @@ class OrderCreate(BaseModel):
         orm_mode = True
 
 
+class OrderCancel(BaseModel):
+    id: int
+    pin: int
+
+    class Config:
+        orm_mode = True
+
+
 class OrderOut(BaseModel):
     id: int
     account_id: int
