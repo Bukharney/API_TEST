@@ -150,8 +150,8 @@ def delete_orders(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    order = db.query(models.Orders).filter(models.Orders.id == order.id).first()
-    if not order:
+    orders = db.query(models.Orders).filter(models.Orders.id == order.id).first()
+    if not orders:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
         )
@@ -161,6 +161,11 @@ def delete_orders(
         .filter(models.Accounts.user_id == current_user.id)
         .first()
     )
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+
     if account.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -174,15 +179,17 @@ def delete_orders(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
 
-    order.cancelled = 1
-    order.status = "C"
+    orders.cancelled = 1
+    orders.status = "C"
     account = (
-        db.query(models.Accounts).filter(models.Accounts.id == order.account_id).first()
+        db.query(models.Accounts)
+        .filter(models.Accounts.id == orders.account_id)
+        .first()
     )
-    account.line_available += order.balance * order.price
+    account.line_available += orders.balance * orders.price
 
     db.commit()
-    db.refresh(order)
+    db.refresh(orders)
     return {
         "result": "Order cancelled successfully",
     }
