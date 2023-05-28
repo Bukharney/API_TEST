@@ -16,7 +16,7 @@ def create_stock(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role != "admin":
+    if current_user.role != "admin" and current_user.role != "company":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are not authorized to create a stock",
@@ -188,3 +188,43 @@ def func1(
     db: Session = Depends(get_db),
 ):
     return api.get_market_data(symbol)
+
+
+@router.put("/update/{symbol}")
+def update_stock(
+    symbol: str,
+    update_stock: schemas.StockCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "admin" and current_user.role != "company":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to update a stock",
+        )
+
+    symbol = symbol.upper()
+    stock = db.query(models.Stock).filter(models.Stock.symbol == symbol).first()
+    if not stock:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Stock not found"
+        )
+
+    stock.symbol = update_stock.symbol
+    stock.address = update_stock.address
+    stock.company_name = update_stock.company_name
+    stock.stock_industry = update_stock.stock_industry
+    stock.market_value = update_stock.market_value
+    stock.volume = update_stock.volume
+    stock.address = update_stock.address
+    stock.website = update_stock.website
+    stock.registered_capital = update_stock.registered_capital
+    stock.established_date = update_stock.established_date
+    stock.market_entry_date = update_stock.market_entry_date
+    stock.ipo_price = update_stock.ipo_price
+    stock.free_float = update_stock.free_float
+    stock.major_shareholders = update_stock.major_shareholders
+    db.commit()
+    db.refresh(stock)
+
+    return stock

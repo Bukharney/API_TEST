@@ -40,7 +40,12 @@ class Broker(Base):
 
 class Stock(Base):
     __tablename__ = "stocks"
-    symbol = Column(String, primary_key=True, nullable=False)
+    symbol = Column(
+        String,
+        primary_key=True,
+        nullable=False,
+        onupdate="CASCADE",
+    )
     company_name = Column(String, nullable=False)
     stock_industry = Column(String, nullable=False)
     market_value = Column(BigInteger, nullable=False)
