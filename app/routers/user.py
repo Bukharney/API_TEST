@@ -60,6 +60,19 @@ def get_user_bt_name(
     return user
 
 
+@router.get("/my", response_model=schemas.UserOut)
+def get_user(
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
+        )
+    return user
+
+
 @router.get("/{id}", response_model=schemas.UserOut)
 def get_user_by_id(
     id: int,
@@ -104,19 +117,6 @@ def update_user_login_info(
             detail="Something went wrong, please try again",
         )
     return login
-
-
-@router.get("/my", response_model=List[schemas.UserOut])
-def get_user(
-    db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user),
-):
-    user = db.query(models.User).filter(models.User.id == current_user.id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
-        )
-    return [user]
 
 
 @router.get("/login_info/all")
