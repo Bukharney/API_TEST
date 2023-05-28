@@ -126,3 +126,27 @@ def get_all_login_info(
 ):
     login = db.query(models.Login_Logout).order_by(models.Login_Logout.id.desc()).all()
     return login
+
+
+@router.put(
+    "/update",
+    response_model=schemas.UserOut,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def update_user(
+    new_user: schemas.UserCreate,
+    db: Session = Depends(get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with given id not found"
+        )
+    user.name = new_user.name
+    user.email = new_user.email
+    user.password = utils.hash_password(new_user.password)
+    user.phone = new_user.phone
+    db.commit()
+    db.refresh(user)
+    return user
