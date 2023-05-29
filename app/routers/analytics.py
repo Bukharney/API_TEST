@@ -12,7 +12,6 @@ router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
 @router.get("/most_vol_stock")
 def get_all_accounts(
-    current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
     start_time = datetime.datetime(2023, 5, 29, 13, 00)
