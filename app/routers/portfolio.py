@@ -124,3 +124,38 @@ def create_portfolio(
     return {
         "status": "success",
     }
+
+
+@router.put(
+    "/{portfolio_id}",
+    status_code=status.HTTP_200_OK,
+)
+def update_portfolio(
+    portfolio_id: int,
+    portfolio: schemas.PortfolioCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role == "user":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Only brokers and admins can update portfolios",
+        )
+
+    portfolio_exists = (
+        db.query(models.Portfolio).filter(models.Portfolio.id == portfolio_id).first()
+    )
+
+    if not portfolio_exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Portfolio not found",
+        )
+
+    db.query(models.Portfolio).filter(models.Portfolio.id == portfolio_id).update(
+        portfolio.dict(exclude_unset=True)
+    )
+    db.commit()
+    return {
+        "status": "Update success!",
+    }
