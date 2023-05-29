@@ -9,33 +9,6 @@ from sqlalchemy.orm import Session
 router = APIRouter(prefix="/account", tags=["Account"])
 
 
-@router.post(
-    "/", response_model=schemas.AccountOut, status_code=status.HTTP_201_CREATED
-)
-def create_account(
-    account: schemas.AccountCreate,
-    current_user: int = Depends(oauth2.get_current_user),
-    db: Session = Depends(get_db),
-):
-    broker = (
-        db.query(models.Broker).filter(models.Broker.id == account.broker_id).first()
-    )
-    if not broker:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Given broker not found"
-        )
-
-    new_account = models.Accounts(**account.dict())
-    try:
-        db.add(new_account)
-        db.commit()
-        db.refresh(new_account)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-    return new_account
-
-
 @router.get("/all")
 def get_all_accounts(
     current_user: int = Depends(oauth2.get_current_user),
@@ -45,26 +18,7 @@ def get_all_accounts(
     return accounts
 
 
-@router.get("/{id}")
-def get_account(
-    id: int,
-    current_user: int = Depends(oauth2.get_current_user),
-    db: Session = Depends(get_db),
-):
-    account = db.query(models.Accounts).filter(models.Accounts.id == id).first()
-    if not account:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
-        )
-    broker = (
-        db.query(models.Broker).filter(models.Broker.id == account.broker_id).first()
-    )
-
-    account.broker_name = broker.name
-    return account
-
-
-@router.get("/", response_model=List[schemas.AccountOut])
+@router.get("/my", response_model=List[schemas.AccountOut])
 def get_all_accounts(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
@@ -75,6 +29,25 @@ def get_all_accounts(
         .all()
     )
     return accounts
+
+
+@router.get("/{account_id}")
+def get_account(
+    account_id: int,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    account = db.query(models.Accounts).filter(models.Accounts.id == account_id).first()
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
+        )
+    broker = (
+        db.query(models.Broker).filter(models.Broker.id == account.broker_id).first()
+    )
+
+    account.broker_name = broker.name
+    return account
 
 
 @router.get(
@@ -118,12 +91,39 @@ def get_portfolio(
     }
 
 
+@router.post(
+    "/", response_model=schemas.AccountOut, status_code=status.HTTP_201_CREATED
+)
+def create_account(
+    account: schemas.AccountCreate,
+    current_user: int = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+):
+    broker = (
+        db.query(models.Broker).filter(models.Broker.id == account.broker_id).first()
+    )
+    if not broker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Given broker not found"
+        )
+
+    new_account = models.Accounts(**account.dict())
+    try:
+        db.add(new_account)
+        db.commit()
+        db.refresh(new_account)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+    return new_account
+
+
 @router.put(
-    "/{id}",
+    "/{account_id}",
     status_code=status.HTTP_200_OK,
 )
 def update_account(
-    id: int,
+    account_id: int,
     account: schemas.AccountCreate,
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
@@ -134,7 +134,9 @@ def update_account(
             detail="You are not authorized to perform this action",
         )
 
-    account_db = db.query(models.Accounts).filter(models.Accounts.id == id).first()
+    account_db = (
+        db.query(models.Accounts).filter(models.Accounts.id == account_id).first()
+    )
     if not account_db:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
@@ -159,11 +161,11 @@ def update_account(
 
 
 @router.delete(
-    "/{id}",
+    "/{account_id}",
     status_code=status.HTTP_200_OK,
 )
 def delete_account(
-    id: int,
+    account_id: int,
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -173,14 +175,19 @@ def delete_account(
             detail="You are not authorized to perform this action",
         )
 
-    account_db = db.query(models.Accounts).filter(models.Accounts.id == id).first()
+    account_db = (
+        db.query(models.Accounts).filter(models.Accounts.id == account_id).first()
+    )
     if not account_db:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
 
-    db.delete(account_db)
-    db.commit()
+    try:
+        db.delete(account_db)
+        db.commit()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     return {
         "result": "success",
