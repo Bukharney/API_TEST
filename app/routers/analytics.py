@@ -93,7 +93,7 @@ def get_most_contrac(
             "new_accounts": row.new_accounts,
             "total_accounts_before": row.total_accounts_before,
             "total_accounts_endtime": row.total_accounts_endtime,
-            "percentage_new_users": round(row.percentage_new_users, 2),
+            "percentage_new_users": row.percentage_new_users,
             "total_users": row.total_users,
         }
         for row in result
