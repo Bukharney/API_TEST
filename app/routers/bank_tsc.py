@@ -84,7 +84,7 @@ def get_all_bank_transactions(
 
 
 @router.get(
-    "/{account_id}",
+    "/my/{account_id}",
     response_model=List[schemas.BankTransactionOut],
 )
 def get_bank_transactions(
@@ -100,7 +100,7 @@ def get_bank_transactions(
 
     bank_transactions = (
         db.query(models.Bank_transactions)
-        .filter(models.Bank_transactions == account_id)
+        .filter(models.Bank_transactions.account_id == account_id)
         .order_by(models.Bank_transactions.timestamp.desc())
         .all()
     )
