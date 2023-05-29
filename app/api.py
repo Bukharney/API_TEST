@@ -83,8 +83,6 @@ def get_price_info(symbol: str):
         normalized=True,
     )
 
-    data1["high"] = data2["high"][0]
-    data1["low"] = data2["low"][0]
     data1["open"] = data2["open"][0]
     data1["close"] = data2["close"][0]
 
