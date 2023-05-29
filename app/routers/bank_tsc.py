@@ -84,18 +84,15 @@ def get_all_bank_transactions(
 
 
 @router.get(
-    "/my",
+    "/{account_id}",
     response_model=List[schemas.BankTransactionOut],
 )
 def get_bank_transactions(
+    account_id: int,
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    account = (
-        db.query(models.Accounts)
-        .filter(current_user.id == models.Accounts.user_id)
-        .first()
-    )
+    account = db.query(models.Accounts).filter(account_id == models.Accounts.id).first()
     if not account:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User does not have account"
@@ -103,7 +100,7 @@ def get_bank_transactions(
 
     bank_transactions = (
         db.query(models.Bank_transactions)
-        .filter(current_user.id == account.user_id)
+        .filter(models.Bank_transactions == account_id)
         .order_by(models.Bank_transactions.timestamp.desc())
         .all()
     )
