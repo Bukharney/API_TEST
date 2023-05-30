@@ -32,7 +32,7 @@ def create_dividend(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    if not current_user.role != "broker" and current_user.role != "admin":
+    if current_user.role != "broker" and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only brokers can create dividends",
