@@ -41,7 +41,7 @@ def get_most_vol(
         {
             "symbol": row.symbol,
             "vol_sum": row.vol_sum,
-            "price": round(row.price, 2),
+            "price_avg": round(row.price, 2),
             "total_buy_order": row.total_buy_order,
             "total_sell_order": row.total_buy_order,
         }
