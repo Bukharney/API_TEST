@@ -18,20 +18,20 @@ def get_most_vol(
     sql = text(
         """
     SELECT
-        symbol,
-        SUM(volume) AS vol_sum,
-        price,
-        COUNT(CASE WHEN side = 'Buy' THEN 1 END) AS total_buy_order,
-        COUNT(CASE WHEN side = 'Sell' THEN 1 END) AS total_sell_order
+		orders.symbol,
+		SUM(transactions.volume) AS vol_sum,
+		AVG(transactions.price) AS price_avg,
+		COUNT(DISTINCT CASE WHEN side = 'Sell' THEN orders.id END) AS total_sell_order,
+        COUNT(DISTINCT CASE WHEN side = 'Buy' THEN orders.id END) AS total_buy_order
     FROM
         orders
+	JOIN 
+		transactions
+	ON transactions.order_id = orders.id
     WHERE 
         time BETWEEN :start_time AND :end_time
-    GROUP BY
-        symbol,
-        volume,
-        price
-    ORDER BY vol_sum DESC
+	GROUP BY orders.symbol
+	ORDER BY vol_sum
         """
     ).bindparams(start_time=start_time, end_time=end_time)
 
