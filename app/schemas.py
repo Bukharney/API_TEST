@@ -189,7 +189,7 @@ class StockSearch(BaseModel):
 class DividendCreate(BaseModel):
     symbol: str
     account_id: int
-    value: int
+    value: float
 
     class Config:
         orm_mode = True
