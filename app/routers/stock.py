@@ -46,7 +46,8 @@ def get_all_stocks(
     db: Session = Depends(get_db),
 ):
     stocks = db.query(models.Stock).limit(10).all()
-    stocks_info = api.get_candlesticks(stocks, "1d", 1)
+    investors = api.login()
+    stocks_info = api.get_candlesticks(stocks, "1d", 1, investors)
     sorted_stocks = sorted(stocks, key=lambda x: x.value, reverse=True)
 
     return sorted_stocks

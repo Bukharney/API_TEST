@@ -5,8 +5,8 @@ from settrade_v2 import Investor
 
 def login():
     investor = Investor(
-        app_id="3K1RRPK2SiTiY2S8",
-        app_secret="N0cvPa9dcqOHCti2fsYkUoWgIGdrllykcQpQLLWACqA=",
+        app_id="pfeSfrBvY5oueIXM",
+        app_secret="AP4rQALIMysBNlm5ja3htWH6kc40fWcipzfRDLbRB2gi",
         broker_id="SANDBOX",
         app_code="SANDBOX",
         is_auto_queue=False,
@@ -14,17 +14,13 @@ def login():
     return investor
 
 
-def get_quote_symbol(symbol: str):
-    investor = login()
-    if not investor:
-        return "Error"
+def get_quote_symbol(symbol: str, investor: Investor):
     mkt_data = investor.MarketData()
     res = mkt_data.get_quote_symbol(symbol)
     return res
 
 
-def get_candlestick(symbol: str, interval: str, limit: int):
-    investor = login()
+def get_candlestick(symbol: str, interval: str, limit: int, investor: Investor):
     mkt_data = investor.MarketData()
     res = mkt_data.get_candlestick(
         symbol=symbol,
@@ -34,8 +30,7 @@ def get_candlestick(symbol: str, interval: str, limit: int):
     return res
 
 
-def get_candlesticks(symbols, interval: str, limit: int):
-    investor = login()
+def get_candlesticks(symbols, interval: str, limit: int, investor: Investor):
     mkt_data = investor.MarketData()
     for symbol in symbols:
         res = mkt_data.get_candlestick(
