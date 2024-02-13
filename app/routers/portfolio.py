@@ -51,7 +51,7 @@ def get_portfolio(
         )
 
     for symbol in result:
-        price_info = api.get_price_info(symbol["symbol"])
+        price_info = api.SetTradeSymbol().get_price_info(symbol["symbol"])
         symbol["last_price"] = price_info["last"]
         symbol["change"] = price_info["change"]
         symbol["close"] = price_info["close"]

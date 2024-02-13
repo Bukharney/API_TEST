@@ -324,7 +324,7 @@ def get_quote(db):
     if not symbol:
         return False
     for i in symbol:
-        res = api.get_quote_symbol(i.symbol)
+        res = api.SetTradeSymbol().get_quote_symbol(i.symbol)
         if not res:
             return False
         if (

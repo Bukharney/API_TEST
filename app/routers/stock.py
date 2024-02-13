@@ -46,8 +46,7 @@ def get_all_stocks(
     db: Session = Depends(get_db),
 ):
     stocks = db.query(models.Stock).limit(10).all()
-    investors = api.login()
-    stocks_info = api.get_candlesticks(stocks, "1d", 1, investors)
+    st = api.SetTradeSymbol().get_candlesticks(stocks, "1d", 1)
     sorted_stocks = sorted(stocks, key=lambda x: x.value, reverse=True)
 
     return sorted_stocks
@@ -90,7 +89,7 @@ def get_stock_search(
     if not result:
         return []
 
-    details = api.get_candlesticks(result, "1d", 1)
+    details = api.SetTradeSymbol().get_candlesticks(result, "1d", 1)
 
     return result
 
@@ -103,7 +102,7 @@ def get_stock_market(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    res = api.get_candlestick(symbol, interval, limit)
+    res = api.SetTradeSymbol().get_candlestick(symbol, interval, limit)
 
     if not res:
         raise HTTPException(
@@ -118,7 +117,7 @@ def get_stock_market_price_info(
     symbol: str,
     current_user: int = Depends(oauth2.get_current_user),
 ):
-    res = api.get_price_info(symbol)
+    res = api.SetTradeSymbol().get_price_info(symbol)
 
     if not res:
         raise HTTPException(
@@ -133,7 +132,7 @@ def get_stock_market_bid_offer(
     symbol: str,
     current_user: int = Depends(oauth2.get_current_user),
 ):
-    res = api.get_bid_offer(symbol)
+    res = api.SetTradeSymbol().get_bid_offer(symbol)
 
     if not res:
         raise HTTPException(
@@ -188,7 +187,7 @@ def func1(
     current_user: int = Depends(oauth2.get_current_user),
     db: Session = Depends(get_db),
 ):
-    return api.get_market_data(symbol)
+    return api.SetTradeSymbol().get_market_data(symbol)
 
 
 @router.put("/update/{symbol}")
