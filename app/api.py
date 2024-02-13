@@ -217,7 +217,7 @@ class SetTradeSymbol:
         sub2 = realtime.subscribe_price_info(symbol, on_message=func2)
         sub2.start()
 
-        mkt_data = self.MarketData()
+        mkt_data = self.investor.MarketData()
         data3 = mkt_data.get_candlestick(
             symbol=symbol,
             interval="1d",
