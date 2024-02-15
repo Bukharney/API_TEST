@@ -20,9 +20,25 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with given email already exists",
         )
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    user_id = (
+        db.query(models.User).filter(models.User.email == new_user.email).first().id
+    )
+    account = models.Accounts(
+        user_id=user_id,
+        broker_id=1,
+        cash_balance=500000,
+        line_available=500000,
+        credit_limit=500000,
+        pin=123456,
+    )
+    db.add(account)
+    db.commit()
+    db.refresh(account)
     return new_user
 
 
