@@ -41,7 +41,7 @@ def update_news(
         if not news["description"] != None:
             new_news = models.News(
                 topic=news["title"],
-                content=news["description"],
+                content=news["description"] or "",
                 file=news["image_url"],
                 news_time=news["pubDate"],
             )
@@ -54,7 +54,7 @@ def update_news(
         if news["description"] != None:
             new_news = models.News(
                 topic=news["title"],
-                content=news["description"],
+                content=news["description"] or "",
                 file=news["image_url"],
                 news_time=news["pubDate"],
             )
