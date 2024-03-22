@@ -5,8 +5,8 @@ from settrade_v2 import Investor
 class SetTradeSymbol:
     def __init__(self):
         self.investor = Investor(
-            app_id="UEpy2i98WL2YyneY",
-            app_secret="AIkuSTRSL1R7bMnizo6WIE5LCB5YI1MGC7QOUTax9TaR",
+            app_id="YfTh3KaFsv1ugv3Z",
+            app_secret="PolUag6rQw3tzfmvlcj2QkVG4Ilazq+T7S4oubDfwyQ=",
             broker_id="SANDBOX",
             app_code="SANDBOX",
             is_auto_queue=False,
