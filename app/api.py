@@ -3,10 +3,11 @@ from settrade_v2 import Investor
 
 
 class SetTradeSymbol:
+
     def __init__(self):
         self.investor = Investor(
-            app_id="YfTh3KaFsv1ugv3Z",
-            app_secret="PolUag6rQw3tzfmvlcj2QkVG4Ilazq+T7S4oubDfwyQ=",
+            app_id="GnZ8EyK1JdgOkfST",
+            app_secret="aOzv1wiMMaLdMZ9q7W6rGXXIIjK/tbTejwDb0HwitN2w=",
             broker_id="SANDBOX",
             app_code="SANDBOX",
             is_auto_queue=False,
