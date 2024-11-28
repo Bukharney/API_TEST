@@ -1,16 +1,25 @@
-import time
+import logging, time
 from settrade_v2 import Investor
+from requests.exceptions import RequestException
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class SetTradeSymbol:
     def __init__(self):
-        self.investor = Investor(
-            app_id="UEpy2i98WL2YyneY",
-            app_secret="AIkuSTRSL1R7bMnizo6WIE5LCB5YI1MGC7QOUTax9TaR",
-            broker_id="SANDBOX",
-            app_code="SANDBOX",
-            is_auto_queue=False,
-        )
+        try:
+            self.investor = Investor(
+                app_id="8wHyNO7VMocVZeeT",
+                app_secret="Hw1CjUAC00zoeCV3RgGc3wc0rBoaUhrjROeRQEgaPZ0=",
+                broker_id="SANDBOX",
+                app_code="SANDBOX",
+                is_auto_queue=False,
+            )
+        except SettradeError as e:
+            logging.error(f"Failed to initialize Investor: {e}")
+            raise e
+        except Exception as e:
+            logging.error(f"Unexpected error during initialization: {e}")
+            raise e
 
     def get_quote_symbol(self, symbol: str):
         mkt_data = self.investor.MarketData()
